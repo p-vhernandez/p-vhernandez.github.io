@@ -26,8 +26,198 @@
         </style>
 
         <title>AB Testing Team 3</title>
+
+        <!-- The core Firebase JS SDK is always required and must be listed first -->
+        <script src="https://www.gstatic.com/firebasejs/8.4.3/firebase-app.js"></script>
+
+        <!-- TODO: Add SDKs for Firebase products that you want to use
+            https://firebase.google.com/docs/web/setup#available-libraries -->
+        <script src="https://www.gstatic.com/firebasejs/8.4.3/firebase-analytics.js"></script>
+
+        <script>
+
+            let firebaseConfig = {
+                apiKey: "AIzaSyDzuCmLyZDZVx5EcwbOF8bTBTgoKmV3aLg",
+                authDomain: "evaluation-abtesting.firebaseapp.com",
+                databaseURL: "https://evaluation-abtesting-default-rtdb.europe-west1.firebasedatabase.app",
+                projectId: "evaluation-abtesting",
+                storageBucket: "evaluation-abtesting.appspot.com",
+                messagingSenderId: "493242964737",
+                appId: "1:493242964737:web:b1a9ca8d906542844c9900",
+                measurementId: "G-ELNLGRZKZ8"
+            };
+            // Initialize Firebase
+            if (!firebase.apps.length) {
+                const firebaseConfig = context.store.state.firebase.firebaseConfig; // state.storeFilename.property
+                firebase.initializeApp(firebaseConfig);
+            }
+
+            let db = firebase.firestore();
+            firebase.analytics();
+
+            function setCookie(cname, cvalue, exdays) {
+                let d = new Date();
+                d.setTime(d.getTime() + (exdays*24*60*60*1000));
+                let expires = "expires="+ d.toUTCString();
+                document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+            }
+
+            function getCookie(cname) {
+                let name = cname + "=";
+                let decodedCookie = decodeURIComponent(document.cookie);
+                let ca = decodedCookie.split(';');
+                for(let i = 0; i < ca.length; i++) {
+                    let c = ca[i];
+                    while (c.charAt(0) == ' ') {
+                        c = c.substring(1);
+                    }
+                    if (c.indexOf(name) == 0) {
+                        return c.substring(name.length, c.length);
+                    }
+                }
+                return "";
+            }
+
+            function cookieExists(cname) {
+                if (getCookie(cname) != "") {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+
+            function getDocument(user_id) {
+                let docRef = db.collection("index").doc(user_id);
+
+                docRef.get().then((doc) => {
+                    if (doc.exists) {
+                        // console.log("Document data:", doc.data());
+                        return doc;
+                    } else {
+                        // doc.data() will be undefined in this case
+                        // console.log("No such document!");
+                        return -1;
+                    }
+                }).catch((error) => {
+                    console.log("Error getting document:", error);
+                });
+            }
+
+            function checkUser() {
+                let newVisit = new Date(); // Today's date
+                localStorage.setItem("website_loaded_time", newVisit);
+                // if multiple visit sum them up
+                let isNewUser = !(cookieExists("user_id"));
+                localStorage.setItem("is_new", (isNewUser ? "new" : "old"));
+                if (isNewUser) {
+                    // new user!
+                    db.collection("index").add({
+                        joined: false,
+                        name: "",
+                        personal_data: false,
+                        surname: "",
+                        time_to_join: -1,
+                        visits: [newVisit]
+                    })
+                    .then((docRef) => {
+                        // console.log("Document written with ID: ", docRef.id);
+                        setCookie("user_id", docRef.id, 365);
+                    })
+                    .catch((error) => {
+                        console.error("Error adding document: ", error);
+                    });
+                } else {
+                    let doc = getDocument(getCookie("user_id"))
+                    // manage old user -> get data and if they have already joined redirect away
+                    // WIP
+                    if (doc.data().joined) {
+                        window.location.href = "https://www.google.com";
+                    }
+                }
+            }
+
+            function joinPetition() {
+                let user_id = getCookie("user_id");
+                let newVisit = localStorage.getItem("website_loaded_time");                
+
+                // calculate the total time to join
+                let now = new Date();
+                let timeToJoin = now.getTime() - newVisit.getTime();
+
+                // get personal data
+                let web_personal_data = false, web_name = "", web_surname = "";
+                if (document.getElementById('input_name').value != "" || document.getElementById('input_surname').value != "") {
+                    web_personal_data = true;
+                    web_name = document.getElementById('input_name').value;
+                    web_surname = document.getElementById('input_surname').value;
+                }
+
+                // manage recurring user who finally decided to join
+                let isNew = (localStorage.getItem("is_new") == "new" ? true : false);
+                let visits_array = [], previous_time = 0;
+                if (!isNew) {
+                    let doc = getDocument(user_id);
+                    let visits_array = doc.data().visits;
+                    let previous_time = doc.data().time_to_join;
+                }
+
+                db.collection("index").doc(user_id).set({
+                    joined: true,
+                    name: web_name,
+                    personal_data: web_personal_data,
+                    surname: web_surname,
+                    time_to_join: timeToJoin + previous_time,
+                    visits: visits_array.push(newVisit)
+                })
+                .then(() => {
+                    console.log("Document successfully written!");
+                })
+                .catch((error) => {
+                    console.error("Error writing document: ", error);
+                });
+            }
+
+            function saveData() {
+                // the user didn't join the petition
+                let user_id = getCookie("user_id");
+                let newVisit = localStorage.getItem("website_loaded_time"); 
+
+                let now = new Date();
+                let timeToJoin = now.getTime() - newVisit.getTime();
+
+                // manage recurring user who still hasn't joined
+                let isNew = (localStorage.getItem("is_new") == "new" ? true : false);
+                let visits_array = [], previous_time = 0;
+                if (!isNew) {
+                    let doc = getDocument(user_id);
+                    let visits_array = doc.data().visits;
+                    let previous_time = doc.data().time_to_join;
+                }
+
+                db.collection("index").doc(user_id).set({
+                    joined: false,
+                    name: "",
+                    personal_data: false,
+                    surname: "",
+                    time_to_join: timeToJoin + previous_time,
+                    visits: visits_array.push(newVisit)
+                })
+                .then(() => {
+                    console.log("Document successfully written!");
+                })
+                .catch((error) => {
+                    console.error("Error writing document: ", error);
+                });
+            }
+
+            window.onbeforeunload = saveData;
+
+        </script>
+
+
     </head>
-    <body style="font-family: 'Nunito', sans-serif;">
+
+    <body style="font-family: 'Nunito', sans-serif;" onload="checkUser()">
         <div class="jumbotron text-center">
             <h1>Petition on the general opinion of puppies</h1>
         </div>
@@ -52,12 +242,12 @@
                     <label>Your data (optional)</label>
                     <div class="input-group">
                         <span class="input-group-addon" id="basic-addon">Your name</span>
-                        <input type="text" class="form-control" aria-describedby="basic-addon"/>
+                        <input id="input_name" type="text" class="form-control" aria-describedby="basic-addon"/>
                     </div>
                     <br>
                     <div class="input-group">
                         <span class="input-group-addon" id="basic-addon2">Your surname</span>
-                        <input type="text" class="form-control" aria-describedby="basic-addon2"/>
+                        <input id="input_surname" type="text" class="form-control" aria-describedby="basic-addon2"/>
                     </div>
                     <br><br>
                     <button type="submit" class="btn btn-primary">
@@ -74,6 +264,37 @@
         <footer class="footer">
             <a href="index2.html" style="color: white">Click me to see the other version</a>
         </footer>
+
+        <!-- The core Firebase JS SDK is always required and must be listed first 
+        <script src="https://www.gstatic.com/firebasejs/8.4.3/firebase-app.js"></script> -->
+
+        <!-- TODO: Add SDKs for Firebase products that you want to use
+            https://firebase.google.com/docs/web/setup#available-libraries
+        <script src="https://www.gstatic.com/firebasejs/8.4.3/firebase-analytics.js"></script> -->
+
+        <script>
+        // Your web app's Firebase configuration
+        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+            /*let firebaseConfig = {
+                apiKey: "AIzaSyDzuCmLyZDZVx5EcwbOF8bTBTgoKmV3aLg",
+                authDomain: "evaluation-abtesting.firebaseapp.com",
+                databaseURL: "https://evaluation-abtesting-default-rtdb.europe-west1.firebasedatabase.app",
+                projectId: "evaluation-abtesting",
+                storageBucket: "evaluation-abtesting.appspot.com",
+                messagingSenderId: "493242964737",
+                appId: "1:493242964737:web:b1a9ca8d906542844c9900",
+                measurementId: "G-ELNLGRZKZ8"
+            };
+            // Initialize Firebase
+            if (!firebase.apps.length) {
+                const firebaseConfig = context.store.state.firebase.firebaseConfig; // state.storeFilename.property
+                firebase.initializeApp(firebaseConfig);
+            }
+
+            let db = firebase.firestore();
+            firebase.analytics();*/
+
+        </script>
     </body>
 </html>
 
