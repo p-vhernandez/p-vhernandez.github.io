@@ -75,7 +75,7 @@
                         return c.substring(name.length, c.length);
                     }
                 }
-                return "error"; // ?
+                return "cookie_not_found"; // ?
             }
 
             function setCookie(cname, cvalue, exdays) {
@@ -86,7 +86,7 @@
             }
 
             function cookieExists(cname) {
-                if (getCookie(cname) != "") {
+                if (getCookie(cname) != "cookie_not_found") {
                     return true;
                 } else {
                     return false;
