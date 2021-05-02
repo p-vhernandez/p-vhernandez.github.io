@@ -39,9 +39,9 @@
 
         <script>
 
-            const firebase = require("firebase");
+            //const firebase = require("firebase");
             // Required for side-effects
-            require("firebase/firestore");
+            //require("firebase/firestore");
 
             let firebaseConfig = {
                 apiKey: "AIzaSyDzuCmLyZDZVx5EcwbOF8bTBTgoKmV3aLg",
@@ -54,10 +54,10 @@
                 measurementId: "G-ELNLGRZKZ8"
             };
             // Initialize Firebase
-            if (!firebase.apps.length) {
-                const firebaseConfig = context.store.state.firebase.firebaseConfig; // state.storeFilename.property
+            //if (!firebase.apps.length) {
+              //  const firebaseConfig = context.store.state.firebase.firebaseConfig; // state.storeFilename.property
                 firebase.initializeApp(firebaseConfig);
-            }
+            //}
 
             let db = firebase.firestore();
             firebase.analytics();
