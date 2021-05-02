@@ -72,6 +72,7 @@
                         c = c.substring(1);
                     }
                     if (c.indexOf(name) == 0) {
+                        alert(c);
                         return c.substring(name.length, c.length);
                     }
                 }
@@ -134,7 +135,9 @@
                         console.error("Error adding document: ", error);
                     });
                 } else {
-                    let doc = getDocument(getCookie("user_id"))
+                    alert(getCookie("user_id"));
+                    let doc = getDocument(getCookie("user_id"));
+
                     // manage old user -> get data and if they have already joined redirect away
                     // WIP
                     if (doc.data().joined) {
