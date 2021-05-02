@@ -62,13 +62,6 @@
             let db = firebase.firestore();
             firebase.analytics();
 
-            function setCookie(cname, cvalue, exdays) {
-                let d = new Date();
-                d.setTime(d.getTime() + (exdays*24*60*60*1000));
-                let expires = "expires="+ d.toUTCString();
-                document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
-            }
-
             function getCookie(cname) {
                 let name = cname + "=";
                 let decodedCookie = decodeURIComponent(document.cookie);
@@ -82,7 +75,14 @@
                         return c.substring(name.length, c.length);
                     }
                 }
-                return "";
+                return "error"; // ?
+            }
+
+            function setCookie(cname, cvalue, exdays) {
+                let d = new Date();
+                d.setTime(d.getTime() + (exdays*24*60*60*1000));
+                let expires = "expires="+ d.toUTCString();
+                document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
             }
 
             function cookieExists(cname) {
@@ -145,11 +145,13 @@
 
             function joinPetition() {
                 let user_id = getCookie("user_id");
-                let newVisit = localStorage.getItem("website_loaded_time");                
+                alert("ID: " + user_id);
+                let newVisit = localStorage.getItem("website_loaded_time");  
 
                 // calculate the total time to join
                 let now = new Date();
                 let timeToJoin = now.getTime() - newVisit.getTime();
+                alert("Time: " + timeToJoin);   
 
                 // get personal data
                 let web_personal_data = false, web_name = "", web_surname = "";
@@ -158,6 +160,7 @@
                     web_name = document.getElementById('input_name').value;
                     web_surname = document.getElementById('input_surname').value;
                 }
+                alert("Name: " + web_name);   
 
                 // manage recurring user who finally decided to join
                 let isNew = (localStorage.getItem("is_new") == "new" ? true : false);
@@ -182,9 +185,15 @@
                 .catch((error) => {
                     console.error("Error writing document: ", error);
                 });
+
+                // window.location.href = "/signed.html";
+
             }
 
             function saveData() {
+
+                console.log("I'm here");
+
                 // the user didn't join the petition
                 let user_id = getCookie("user_id");
                 let newVisit = localStorage.getItem("website_loaded_time"); 
@@ -217,7 +226,20 @@
                 });
             }
 
-            window.onbeforeunload = saveData;
+            window.addEventListener("beforeunload", function(evt) {
+
+                saveData();
+
+                // Cancel the event (if necessary)
+                // evt.preventDefault();
+
+                // Google Chrome requires returnValue to be set
+                evt.returnValue = '';
+
+                alert("test");
+
+                return null;
+            });
 
         </script>
 
@@ -245,7 +267,7 @@
                 <br><br>
                 By clicking the following button you agree with signing this petition. 
                 <br><br>
-                <form action="https://youtu.be/dQw4w9WgXcQ">
+                <form>
                     <label>Your data (optional)</label>
                     <div class="input-group">
                         <span class="input-group-addon" id="basic-addon">Your name</span>
@@ -257,7 +279,7 @@
                         <input id="input_surname" type="text" class="form-control" aria-describedby="basic-addon2"/>
                     </div>
                     <br><br>
-                    <button type="submit" class="btn btn-primary">
+                    <button onclick="joinPetition()" type="submit" class="btn btn-primary">
                         Sign this petition
                     </button>                  
                 </form>
