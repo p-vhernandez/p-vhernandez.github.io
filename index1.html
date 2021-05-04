@@ -2,6 +2,9 @@
 <html>
     <head>
 
+        <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+        <meta content="utf-8" http-equiv="encoding">
+
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
 
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap-theme.min.css" integrity="sha384-6pzBo3FDv/PJ8r2KRkGHifhEocL+1X2rVCTTkUfGk7/0pbek5mMa1upzvWbrUbOZ" crossorigin="anonymous">
@@ -94,15 +97,14 @@
             }*/
 
             function setCookie(cname, cvalue, exdays) {
+
                 let d = new Date();
                 let extratime = exdays*24*60*60*1000;
                 d.setTime(d.getTime() + (extratime));
-                let expires = " expires="+ d.toUTCString(); // WIP not saving expires
-                let maxage = " max-age="+ extratime;
+                let expires = " expires="+ d.toUTCString(); // TODO WIP not saving expires
                 console.log(expires)
-                console.log(maxage)
-                document.cookie = cname + "=" + cvalue + ";" + expires + "; path=/";
-                //document.cookie = cname + "=" + cvalue + ";" + maxage + "; path=/";
+                document.cookie = cname + "=" + cvalue + ";" + expires + "; path=/; samesite=lax";
+            
             }
 
             function cookieExists(cname) {
@@ -118,7 +120,8 @@
                 localStorage.setItem("website_loaded_time", newVisit.getTime());
                 // if multiple visit sum them up
                 let isNewUser = !(cookieExists("user_id"));
-               //alert(isNewUser)
+                console.log(cookieExists("user_id"))
+                //alert(isNewUser)
 
                 localStorage.setItem("is_new", (isNewUser ? "new" : "old"));
                 if (isNewUser) {
@@ -252,7 +255,6 @@
 
                     let now = new Date();
                     let timeToJoin = now.getTime() - newVisit;
-                    alert("now: " + timeToJoin)
 
                     // manage recurring user who still hasn't joined
                     let isNew = (localStorage.getItem("is_new") == "new" ? true : false);
@@ -271,7 +273,7 @@
                                 personal_data: false,
                                 surname: "",
                                 time_to_join: timeToJoin + previous_time,
-                                visits: visits_array.push(newVisit)
+                                visits: visits_array.push(newVisit) // TODO WIP visits becoming "2 (int)"???
                             })
                             .then(() => {
                                 console.log("Document successfully written!");
