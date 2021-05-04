@@ -260,6 +260,8 @@
                     let isNew = (localStorage.getItem("is_new") == "new" ? true : false);
                     let previous_time = 0;
                     let docRef = db.collection("index").doc(user_id);
+
+                    // might be an issue of async not being called
                     docRef.get().then((doc) => {
                         if (doc.exists) {
                             console.log("Document data:", doc.data());
