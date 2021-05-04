@@ -30,8 +30,6 @@
 
         <title>AB Testing Team 3</title>
 
-        <!--<script src="scripts/require.js"></script>-->
-
         <!-- The core Firebase JS SDK is always required and must be listed first -->
         <script src="https://www.gstatic.com/firebasejs/8.4.3/firebase-app.js"></script>
 
@@ -41,10 +39,6 @@
         <script src="https://www.gstatic.com/firebasejs/8.4.3/firebase-analytics.js"></script>
 
         <script>
-
-            //const firebase = require("firebase");
-            // Required for side-effects
-            //require("firebase/firestore");
 
             let firebaseConfig = {
                 apiKey: "AIzaSyDzuCmLyZDZVx5EcwbOF8bTBTgoKmV3aLg",
@@ -56,11 +50,9 @@
                 appId: "1:493242964737:web:b1a9ca8d906542844c9900",
                 measurementId: "G-ELNLGRZKZ8"
             };
-            // Initialize Firebase
-            //if (!firebase.apps.length) {
-              //  const firebaseConfig = context.store.state.firebase.firebaseConfig; // state.storeFilename.property
-                firebase.initializeApp(firebaseConfig);
-            //}
+            
+            firebase.initializeApp(firebaseConfig);
+            
 
             let db = firebase.firestore();
             firebase.analytics();
@@ -80,21 +72,6 @@
                 }
                 return "cookie_not_found"; // ?
             }
-
-            /*function cookieDate(d) {
-                function d2(n) { return n < 10 ? '0' + n : n; }
-                let days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
-                    months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
-                return '' +
-                    days[d.getUTCDay()] + ', ' +
-                    d2(d.getUTCDate()) + '-' +
-                    months[d.getUTCMonth()] + '-' +
-                    d.getUTCFullYear() + ' ' +
-                    d2(d.getUTCHours()) + ':' +
-                    d2(d.getUTCMinutes()) + ':' +
-                    d2(d.getUTCSeconds()) + ' GMT';
-            }*/
 
             function setCookie(cname, cvalue, exdays) {
 
@@ -121,7 +98,6 @@
                 // if multiple visit sum them up
                 let isNewUser = !(cookieExists("user_id"));
                 console.log(cookieExists("user_id"))
-                //alert(isNewUser)
 
                 localStorage.setItem("is_new", (isNewUser ? "new" : "old"));
                 if (isNewUser) {
@@ -133,6 +109,7 @@
                         name: "",
                         personal_data: false,
                         surname: "",
+                        button_position: "left", // changes to right in index2
                         time_to_join: -1,
                         visits: [newVisit]
                     })
@@ -198,6 +175,7 @@
                                 name: web_name,
                                 personal_data: web_personal_data,
                                 surname: web_surname,
+                                button_position: "left", // changes to right in index2
                                 time_to_join: timeToJoin + previous_time,
                                 visits: visits_array.push(newVisit)
                             })
@@ -225,6 +203,7 @@
                                 name: web_name,
                                 personal_data: web_personal_data,
                                 surname: web_surname,
+                                button_position: "left", // changes to right in index2
                                 time_to_join: timeToJoin + previous_time,
                                 visits: [newVisit]
                             })
@@ -274,6 +253,7 @@
                                 name: "",
                                 personal_data: false,
                                 surname: "",
+                                button_position: "left", // changes to right in index2
                                 time_to_join: timeToJoin + previous_time,
                                 visits: visits_array.push(newVisit) // TODO WIP visits becoming "2 (int)"???
                             })
