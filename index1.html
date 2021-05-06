@@ -232,7 +232,7 @@
 
                     let newVisit = localStorage.getItem("website_loaded_time"); // UTC String
                     let now = new Date();
-                    let timeSpent = now.getTime() - Data.parse(newVisit);
+                    let timeSpent = now.getTime() - Date.parse(newVisit);
 
                     if (cookieExists("time_spent"))
                         setCookie("time_spent", timeSpent + getCookie("time_spent"), 365);
