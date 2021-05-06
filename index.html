@@ -5,11 +5,54 @@
 
         <script>
 
+            function getCookie(cname) {
+                let name = cname + "=";
+                let decodedCookie = decodeURIComponent(document.cookie);
+                let ca = decodedCookie.split(';');
+                for(let i = 0; i < ca.length; i++) {
+                    let c = ca[i];
+                    while (c.charAt(0) == ' ') {
+                        c = c.substring(1);
+                    }
+                    if (c.indexOf(name) == 0) {
+                        return c.substring(name.length, c.length);
+                    }
+                }
+                return "cookie_not_found";
+            }
+
+            function setCookie(cname, cvalue, exdays) {
+                let d = new Date();
+                let extratime = exdays*24*60*60*1000;
+                d.setTime(d.getTime() + (extratime));
+                let expires = " expires="+ d.toUTCString();
+                console.log(expires)
+                document.cookie = cname + "=" + cvalue + ";" + expires + "; path=/; samesite=lax";
+            }
+
+            function cookieExists(cname) {
+                if (getCookie(cname) != "cookie_not_found") {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+
             if (navigator.cookieEnabled) {
-                if (Math.random() < 2) // WIP -> CHANGE TO 0.5 WHEN READY
+                let position;
+                if (!cookieExists("button_position")) {
+
+                    // WIP -> CHANGE TO 0.5 WHEN READY
+                    position = (Math.random() < 2 ? "left" : "right"); // generate new position for a new user
+                    setCookie("button_position", position, 365); 
+                } else position = getCookie("button_position");
+
+                if (position == "left") {
                     window.location.replace("https://p-vhernandez.github.io/index1.html");
-                else
+                }
+                else {
                     window.location.replace("https://p-vhernandez.github.io/index2.html");
+                }
             } else {
                 alert("Please enable cookies to enter this website, and then reload this page");
             }
