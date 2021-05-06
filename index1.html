@@ -231,8 +231,10 @@
                 if (localStorage.getItem("joined_petition") == "false") {
 
                     let newVisit = localStorage.getItem("website_loaded_time"); // UTC String
+                    console.log(newVisit)
                     let now = new Date();
                     let timeSpent = now.getTime() - Date.parse(newVisit);
+                    console.log(timeSpent)
 
                     if (cookieExists("time_spent"))
                         setCookie("time_spent", timeSpent + getCookie("time_spent"), 365);
