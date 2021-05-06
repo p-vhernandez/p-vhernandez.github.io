@@ -159,7 +159,7 @@
                 let newVisit = localStorage.getItem("website_loaded_time"); // UTC String
                 
                 let now = new Date();
-                let timeToJoin = parseInt(now.getTime()) - Date.parse(newVisit);
+                let timeToJoin = now.getTime() - Date.parse(newVisit);
                 
                 // get personal data
                 let web_personal_data = false, web_name = "", web_surname = "";
@@ -170,7 +170,7 @@
                 }
 
                 // calculating the total time to join among sessions
-                let previous_time = (cookieExists("time_spent") ? getCookie("time_spent") : 0);
+                let previous_time = (cookieExists("time_spent") ? parseInt(getCookie("time_spent")) : 0);
                 let user_id = getCookie("user_id");
 
                 db.collection("index").doc(user_id).update({
