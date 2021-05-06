@@ -26,7 +26,6 @@
                 let extratime = exdays*24*60*60*1000;
                 d.setTime(d.getTime() + (extratime));
                 let expires = " expires="+ d.toUTCString();
-                console.log(expires)
                 document.cookie = cname + "=" + cvalue + ";" + expires + "; path=/; samesite=lax";
             }
 
