@@ -230,9 +230,9 @@
 
                 if (localStorage.getItem("joined_petition") == "false") {
 
-                    let newVisit = parseInt(localStorage.getItem("website_loaded_time")); 
+                    let newVisit = localStorage.getItem("website_loaded_time"); // UTC String
                     let now = new Date();
-                    let timeSpent = now.getTime() - newVisit;
+                    let timeSpent = now.getTime() - Data.parse(newVisit);
 
                     if (cookieExists("time_spent"))
                         setCookie("time_spent", timeSpent + getCookie("time_spent"), 365);
