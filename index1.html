@@ -118,16 +118,11 @@
                                 let timeSpent = parseInt(getCookie("time_spent"));
 
                                 db.collection("index").doc(user_id).update({
-                                    joined: false,
-                                    name: "",
-                                    personal_data: false,
-                                    surname: "",
-                                    button_position: buttonPosition, 
                                     time_to_join: timeSpent,
-                                    visits: visits_array.push(newVisit) // TODO WIP visits becoming "2 (int)"???
+                                    visits: firebase.firestore.FieldValue.arrayUnion(newVisit)
                                 })
                                 .then(() => {
-                                    console.log("Time successfully updated!");
+                                    console.log("Time and visits successfully updated!");
                                 })
                                 .catch((error) => {
                                     console.error("Error writing document: ", error);
