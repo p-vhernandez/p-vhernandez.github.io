@@ -2,6 +2,9 @@
 <html>
     <head>
 
+        <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+        <meta content="utf-8" http-equiv="encoding">
+
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
 
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap-theme.min.css" integrity="sha384-6pzBo3FDv/PJ8r2KRkGHifhEocL+1X2rVCTTkUfGk7/0pbek5mMa1upzvWbrUbOZ" crossorigin="anonymous">
@@ -26,8 +29,205 @@
         </style>
 
         <title>AB Testing Team 3</title>
+
+        <!-- The core Firebase JS SDK is always required and must be listed first -->
+        <script src="https://www.gstatic.com/firebasejs/8.4.3/firebase-app.js"></script>
+
+        <!-- TODO: Add SDKs for Firebase products that you want to use
+            https://firebase.google.com/docs/web/setup#available-libraries -->
+        <script src="https://www.gstatic.com/firebasejs/8.4.3/firebase-firestore.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/8.4.3/firebase-analytics.js"></script>
+
+        <script>
+
+            let buttonPosition = "right"; // changes to right in index2
+
+            let firebaseConfig = {
+                apiKey: "AIzaSyDzuCmLyZDZVx5EcwbOF8bTBTgoKmV3aLg",
+                authDomain: "evaluation-abtesting.firebaseapp.com",
+                databaseURL: "https://evaluation-abtesting-default-rtdb.europe-west1.firebasedatabase.app",
+                projectId: "evaluation-abtesting",
+                storageBucket: "evaluation-abtesting.appspot.com",
+                messagingSenderId: "493242964737",
+                appId: "1:493242964737:web:b1a9ca8d906542844c9900",
+                measurementId: "G-ELNLGRZKZ8"
+            };
+            
+            firebase.initializeApp(firebaseConfig);
+
+            let db = firebase.firestore();
+            firebase.analytics();
+
+            function getCookie(cname) {
+
+                let name = cname + "=";
+                let decodedCookie = decodeURIComponent(document.cookie);
+                let ca = decodedCookie.split(';');
+                for(let i = 0; i < ca.length; i++) {
+                    let c = ca[i];
+                    while (c.charAt(0) == ' ') {
+                        c = c.substring(1);
+                    }
+                    if (c.indexOf(name) == 0) {
+                        return c.substring(name.length, c.length);
+                    }
+                }
+                return "cookie_not_found";
+
+            }
+
+            function setCookie(cname, cvalue, exdays) {
+
+                let d = new Date();
+                let extratime = exdays*24*60*60*1000;
+                d.setTime(d.getTime() + (extratime));
+                let expires = " expires="+ d.toUTCString();
+                document.cookie = cname + "=" + cvalue + ";" + expires + "; path=/; samesite=lax";
+
+            }
+
+            function cookieExists(cname) {
+                return (getCookie(cname) != "cookie_not_found" ? true : false);
+            }
+
+            function checkUser() {
+
+                let d = new Date();
+                let newVisit = d.toUTCString();
+                localStorage.setItem("website_loaded_time", newVisit);
+
+                // manage old user -> update data and if they have already joined redirect away
+                if (cookieExists("time_spent")) {
+
+                    let user_id = getCookie("user_id");
+                    let docRef = db.collection("index").doc(getCookie("user_id"));
+                    
+                    docRef.get().then((doc) => {
+
+                        if (doc.exists) {
+
+                            if (doc.data().joined) { // user already joined
+
+                                localStorage.setItem("joined_petition", "true");
+                                window.location.replace("signed.html");
+                            } else {
+
+                                let timeSpent = parseInt(getCookie("time_spent"));
+
+                                db.collection("index").doc(user_id).update({
+                                    time_to_join: timeSpent,
+                                    visits: firebase.firestore.FieldValue.arrayUnion(newVisit)
+                                })
+                                .then(() => {
+                                    console.log("Time and visits successfully updated!");
+                                })
+                                .catch((error) => {
+                                    console.error("Error writing document: ", error);
+                                });
+                            }
+                        } else alert("Please delete your cookies and try again");
+
+                    }).catch((error) => {
+                        console.log("Error getting document:", error);
+                    });
+                } else { // manage new user
+
+                    localStorage.setItem("joined_petition", "false");
+                    
+                    db.collection("index").add({
+                        joined: false,
+                        name: "",
+                        personal_data: false,
+                        surname: "",
+                        button_position: buttonPosition,
+                        time_to_join: -1,
+                        visits: [newVisit]
+                    })
+                    .then((docRef) => {
+                        setCookie("user_id", docRef.id, 365);
+                    })
+                    .catch((error) => {
+                        console.error("Error adding document: ", error);
+                    });
+                }
+
+            }
+
+            function joinPetition() {
+
+                localStorage.setItem("joined_petition", "true");
+                let newVisit = localStorage.getItem("website_loaded_time"); // UTC String
+                
+                let now = new Date();
+                let timeToJoin = parseInt(now.getTime()) - Date.parse(newVisit);
+                
+                // get personal data
+                let web_personal_data = false, web_name = "", web_surname = "";
+                if (document.getElementById('input_name').value != "" || document.getElementById('input_surname').value != "") {
+                    web_personal_data = true;
+                    web_name = document.getElementById('input_name').value;
+                    web_surname = document.getElementById('input_surname').value;
+                }
+
+                // calculating the total time to join among sessions
+                let previous_time = (cookieExists("time_spent") ? getCookie("time_spent") : 0);
+                let user_id = getCookie("user_id");
+
+                db.collection("index").doc(user_id).update({
+                    joined: true,
+                    name: web_name,
+                    personal_data: web_personal_data,
+                    surname: web_surname,
+                    button_position: buttonPosition,
+                    time_to_join: timeToJoin + previous_time,
+                    visits: firebase.firestore.FieldValue.arrayUnion(newVisit)
+                })
+                .then(() => {
+                    window.location.replace("signed.html");
+                })
+                .catch((error) => {
+                    console.error("Error writing document: ", error);
+                });
+
+            }
+
+            // if multiple visit save them and sum their durations
+            function saveData() {
+
+                if (localStorage.getItem("joined_petition") == "false") {
+
+                    let newVisit = localStorage.getItem("website_loaded_time"); // UTC String
+                    let now = new Date();
+                    let timeSpent = now.getTime() - Date.parse(newVisit);
+
+                    if (cookieExists("time_spent"))
+                        setCookie("time_spent", timeSpent + parseInt(getCookie("time_spent")), 365);
+                    else
+                        setCookie("time_spent", timeSpent, 365);
+                }
+
+            }
+
+            window.addEventListener("beforeunload", function(evt) {
+
+                saveData();
+
+                // Cancel the event (if necessary)
+                // evt.preventDefault();
+
+                // Google Chrome requires returnValue to be set
+                evt.returnValue = '';
+
+                alert("test");
+
+                return null;
+            });
+
+        </script>
+
     </head>
-    <body style="font-family: 'Nunito', sans-serif;">
+
+    <body style="font-family: 'Nunito', sans-serif;" onload="checkUser()">
         <div class="jumbotron text-center">
             <h1>Petition on the general opinion of puppies</h1>
         </div>
@@ -48,22 +248,23 @@
                 <br><br>
                 By clicking the following button you agree with signing this petition. 
                 <br><br>
-                <form action="https://youtu.be/dQw4w9WgXcQ">
+                <form>
                     <label>Your data (optional)</label>
                     <div class="input-group">
                         <span class="input-group-addon" id="basic-addon">Your name</span>
-                        <input type="text" class="form-control" aria-describedby="basic-addon"/>
+                        <input id="input_name" type="text" class="form-control" aria-describedby="basic-addon"/>
                     </div>
                     <br>
                     <div class="input-group">
                         <span class="input-group-addon" id="basic-addon2">Your surname</span>
-                        <input type="text" class="form-control" aria-describedby="basic-addon2"/>
+                        <input id="input_surname" type="text" class="form-control" aria-describedby="basic-addon2"/>
                     </div>
                     <br><br>
-                    <button type="submit" class="btn btn-primary pull-right">
-                        Sign this petition
-                    </button>                   
                 </form>
+                <!-- do NOT move the button inside the form, else it's gonna avoid run the async code and not work at all -->
+                <button onclick="joinPetition()" type="button" class="btn btn-primary pull-right">
+                    Sign this petition
+                </button>               
             </div>
             <div class="row" style="height: 30px;">
                 <br><br><br><br><br><br><br><br><br><br>
@@ -72,8 +273,7 @@
 
         </div>
         <footer class="footer">
-            <a href="index.html" style="color: white">Click me to see the other version</a>
+            <a href="index2.html" style="color: white">Click me to see the other version</a>
         </footer>
     </body>
 </html>
-
