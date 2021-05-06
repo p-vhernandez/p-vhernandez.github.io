@@ -99,7 +99,7 @@
                 let newVisit = d.toUTCString();
                 localStorage.setItem("website_loaded_time", newVisit);
                 // if multiple visit sum them up
-                console.log("New user? " + cookieExists("user_id"))
+                console.log("Returning user? " + cookieExists("user_id"))
 
                 // manage old user -> get data and if they have already joined redirect away
                 if (cookieExists("time_spent")) {
