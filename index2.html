@@ -173,7 +173,7 @@
                 let previous_time = (cookieExists("time_spent") ? parseInt(getCookie("time_spent")) : 0);
                 let user_id = getCookie("user_id");
 
-                window.onbeforeunload = null;
+                window.removeEventListener("beforeunload", lastStep);
 
                 db.collection("index").doc(user_id).update({
                     joined: true,
@@ -210,8 +210,7 @@
 
             }
 
-            window.addEventListener("beforeunload", function(evt) {
-
+            function lastStep() {
                 saveData();
 
                 // Cancel the event (if necessary)
@@ -221,7 +220,9 @@
                 evt.returnValue = '';
 
                 return null;
-            });
+            }
+
+            window.addEventListener("beforeunload", lastStep);
 
         </script>
 
