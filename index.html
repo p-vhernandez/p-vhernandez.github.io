@@ -33,17 +33,17 @@
                 return (getCookie(cname) != "cookie_not_found" ? true : false);
             }
 
-            if (navigator.cookieEnabled) {
+            //if (navigator.cookieEnabled) {
                 let position;
-                if (!cookieExists("button_position")) {
+                //if (!cookieExists("button_position")) {
 
                     position = (Math.random() < 0.5 ? "left" : "right"); // generate the new position for the new user
-                    setCookie("button_position", position, 365); 
-                } else position = getCookie("button_position");
+                  //  setCookie("button_position", positi-on, 365); 
+                //} else position = getCookie("button_position");
 
                 window.location.replace(position == "left" ? "https://p-vhernandez.github.io/index1.html" : "https://p-vhernandez.github.io/index2.html");
-                
-            } else alert("Please enable cookies to enter this website, and then come back to this website");
+              
+            //} else alert("Please enable cookies to enter this website, and then come back to this website");
         </script>
 
     </head>
