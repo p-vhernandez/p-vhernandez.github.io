@@ -173,6 +173,8 @@
                 let previous_time = (cookieExists("time_spent") ? parseInt(getCookie("time_spent")) : 0);
                 let user_id = getCookie("user_id");
 
+                window.onbeforeunload = null;
+
                 db.collection("index").doc(user_id).update({
                     joined: true,
                     name: web_name,
