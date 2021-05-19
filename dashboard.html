@@ -88,12 +88,6 @@
                 return (getCookie(cname) != "cookie_not_found" ? true : false);
             }
 
-            /*function getAverage(array) {
-                const n = array.length;
-                const mean = array.reduce((a, b) => a + b) / n;
-                return mean;
-            }*/
-
             function getStandardDeviation (array) {
                 const n = array.length;
                 const mean = array.reduce((a, b) => a + b) / n;
@@ -101,6 +95,8 @@
             }
 
             function getTwoMeansZValue(parameters) {
+                // verbose on purpose
+
                 let sm1 = parameters.sampleMean1,
                     sm2 = parameters.sampleMean2,
                     delta = parameters.popDelta,
@@ -110,13 +106,10 @@
                     size2 = parameters.sampleSize2;
 
                 let numerator = (sm1 - sm2) - delta;
-                console.log("numerator: " + numerator);
 
                 let d1 = ((sd1**2)/size1);
                 let d2 = ((sd2**2)/size2);
-
                 let denominator = Math.sqrt(d1 + d2);
-                console.log("denominator: " + denominator);
 
                 return (numerator/denominator);
             }
@@ -206,10 +199,7 @@
                     sampleMeanLeft = sumLeft/leftTimes.length;
 
                     stdDevRight = getStandardDeviation(rightTimes);
-                    console.log("current right sd:" + stdDevRight);
-                    
                     stdDevLeft = getStandardDeviation(leftTimes);
-                    console.log("current left sd:" + stdDevLeft);
 
                     let package = {
                         sampleMean1: sampleMeanLeft,
@@ -222,22 +212,16 @@
                     };
 
                     zValue = getTwoMeansZValue(package);
-                    console.log("Z value: " + zValue);
-                    
                     pValue = getPValue(zValue);
-                    console.log("p-value: " + pValue);
 
                     document.getElementById("stats").innerHTML = "Z = " + zValue + ", p-value = " + pValue + " (" + (pValue >= 0.05 ? "non-" : "") + "significant)";
 
-
                     currentPartition = totPartitions - ((popSize - currentSampleSize)/10);
-                    console.log("current partition: " + currentPartition);
 
                     if (currentPartition != -1)
                         document.getElementById("latest").innerHTML = "Number of subjects that entered the experiment: " + currentSampleSize + " (" + rightTimes.length + " had the right button position and " + leftTimes.length + " had the left button position)";
                     else
                         document.getElementById("latest").innerHTML = "Error? Current sample size: " + currentSampleSize;
-                
 
                     document.getElementById("pending").innerHTML = currentPartition + " interim analysis/es done, " + (totPartitions - currentPartition) + " interim analyses pending (total subjects = " + popSize + " for power = " + expPower + "%)";
 
@@ -250,21 +234,15 @@
 
     <body style="font-family: 'Nunito', sans-serif;" onload="start()">
         <div class="jumbotron text-center">
-            <h1>Petition on the general opinion of puppies</h1>
+            <h1>Dashboard</h1>
         </div>
         <div class="container">
-            <div>
-                <h3 class="text-center">
-                    Dashboard
-                </h3>
-            </div>
-            <br>
             <div class="row">
-                <p id="latest"></p>
+                <h3 id="latest" class="text-center"></h3>
                 <br><br>
-                <p id="stats"></p>
+                <h3 id="stats" class="text-center"></h3>
                 <br><br>
-                <p id="pending"></p>
+                <h3 id="pending" class="text-center"></h3>
             </div>
             <div class="row" style="height: 30px;">
                 <br><br><br><br><br><br><br><br><br><br>
