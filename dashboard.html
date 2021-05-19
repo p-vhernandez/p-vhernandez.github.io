@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html>
+    <head>
+
+        <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+        <meta content="utf-8" http-equiv="encoding">
+
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
+
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap-theme.min.css" integrity="sha384-6pzBo3FDv/PJ8r2KRkGHifhEocL+1X2rVCTTkUfGk7/0pbek5mMa1upzvWbrUbOZ" crossorigin="anonymous">
+
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd" crossorigin="anonymous"></script>
+
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+        <link rel="preconnect" href="https://fonts.gstatic.com">
+        <link href="https://fonts.googleapis.com/css2?family=Nunito&display=swap" rel="stylesheet">
+
+        <style>
+            .footer {
+               position: fixed;
+               left: 0;
+               bottom: 0;
+               width: 100%;
+               background-color: blue;
+               color: white;
+               text-align: center;
+            }
+        </style>
+
+        <title>AB Testing Team 3</title>
+
+        <!-- The core Firebase JS SDK is always required and must be listed first -->
+        <script src="https://www.gstatic.com/firebasejs/8.4.3/firebase-app.js"></script>
+
+        <!-- TODO: Add SDKs for Firebase products that you want to use
+            https://firebase.google.com/docs/web/setup#available-libraries -->
+        <script src="https://www.gstatic.com/firebasejs/8.4.3/firebase-firestore.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/8.4.3/firebase-analytics.js"></script>
+
+        <script>
+
+            let firebaseConfig = {
+                apiKey: "AIzaSyDzuCmLyZDZVx5EcwbOF8bTBTgoKmV3aLg",
+                authDomain: "evaluation-abtesting.firebaseapp.com",
+                databaseURL: "https://evaluation-abtesting-default-rtdb.europe-west1.firebasedatabase.app",
+                projectId: "evaluation-abtesting",
+                storageBucket: "evaluation-abtesting.appspot.com",
+                messagingSenderId: "493242964737",
+                appId: "1:493242964737:web:b1a9ca8d906542844c9900",
+                measurementId: "G-ELNLGRZKZ8"
+            };
+            
+            firebase.initializeApp(firebaseConfig);
+
+            let db = firebase.firestore();
+            firebase.analytics();
+
+            function getCookie(cname) {
+
+                let name = cname + "=";
+                let decodedCookie = decodeURIComponent(document.cookie);
+                let ca = decodedCookie.split(';');
+                for(let i = 0; i < ca.length; i++) {
+                    let c = ca[i];
+                    while (c.charAt(0) == ' ') {
+                        c = c.substring(1);
+                    }
+                    if (c.indexOf(name) == 0) {
+                        return c.substring(name.length, c.length);
+                    }
+                }
+                return "cookie_not_found";
+
+            }
+
+            function setCookie(cname, cvalue, exdays) {
+
+                let d = new Date();
+                let extratime = exdays*24*60*60*1000;
+                d.setTime(d.getTime() + (extratime));
+                let expires = " expires="+ d.toUTCString();
+                document.cookie = cname + "=" + cvalue + ";" + expires + "; path=/; samesite=lax";
+
+            }
+
+            function cookieExists(cname) {
+                return (getCookie(cname) != "cookie_not_found" ? true : false);
+            }
+
+            /*function getAverage(array) {
+                const n = array.length;
+                const mean = array.reduce((a, b) => a + b) / n;
+                return mean;
+            }*/
+
+            function getStandardDeviation (array) {
+                const n = array.length;
+                const mean = array.reduce((a, b) => a + b) / n;
+                return Math.sqrt(array.map(x => Math.pow(x - mean, 2)).reduce((a, b) => a + b) / n);
+            }
+
+            function getPValue(z) 
+            {
+                // z == number of standard deviations from the mean
+
+                // if z is greater than 6.5 standard deviations from the mean
+                // the number of significant digits will be outside of a reasonable 
+                // range
+                if (z < -6.5)
+                    return 0.0;
+                if (z > 6.5) 
+                    return 1.0;
+
+                let factK = 1;
+                let sum = 0;
+                let term = 1;
+                let k = 0;
+                let loopStop = Math.exp(-23);
+
+                while(Math.abs(term) > loopStop) 
+                {
+                    term = .3989422804 * Math.pow(-1,k) * Math.pow(z,k) / (2 * k + 1) / Math.pow(2,k) * Math.pow(z,k+1) / factK;
+                    sum += term;
+                    k++;
+                    factK *= k;
+
+                }
+
+                sum += 0.5;
+
+                return (1 - sum);
+            }
+
+            function start() {
+                let rightTimes = new Array();
+                let leftTimes = new Array();
+                let joinList = 0;
+
+                let popSize = 500,
+                    currentPartition = 0,
+                    totPartitions = 50,
+                    expPower = 80,
+                    currentSampleSize,
+                    sumRight,
+                    sumLeft,
+                    sampleMeanRight, 
+                    sampleMeanLeft,
+                    popMeanRight = 10000,
+                    popMeanLeft = 13000,
+                    popDelta = popMeanLeft - popMeanRight,
+                    stdDevRight,
+                    stdDevLeft,
+                    zValue;
+
+                // for now I'll use the two sample z test
+
+                // protip: use the left one as baseline/population so you'll see 
+                // whether the right one is statistically-significantly better?
+
+                db.collection("index").get().then((querySnapshot) => {
+                    querySnapshot.forEach((doc) => {
+                        // doc.data() is never undefined for query doc snapshots
+                        // console.log(doc.id, " => ", doc.data());
+                        if (doc.data().joined) {
+                            if (doc.data().button_position == "right")
+                                rightTimes.push(doc.data().time_to_join);
+                            else
+                                leftTimes.push(doc.data().time_to_join);
+                            joinList++; // this will be useful for the second hyp
+                        }
+                    });
+
+                    currentSampleSize = rightTimes.length + leftTimes.length;
+                    console.log("current size:" + currentSampleSize);
+
+                    for (let i = 0; i < rightTimes.length; i++)
+                        sumRight += rightTimes[i];
+                    
+                    sampleMeanRight = sumRight/rightTimes.length;
+                    console.log("current right mean:" + sampleMeanRight);
+
+                    for (let i = 0; i < leftTimes.length; i++)
+                        sumLeft += leftTimes[i];
+
+                    sampleMeanLeft = sumLeft/leftTimes.length;
+                    console.log("current left mean:" + sampleMeanLeft);
+
+                    stdDevRight = getStandardDeviation(rightTimes);
+                    console.log("current right sd:" + stdDevRight);
+                    
+                    stdDevLeft = getStandardDeviation(leftTimes);
+                    console.log("current left sd:" + stdDevLeft);
+
+                    zValue = ((sampleMeanLeft - sampleMeanRight - popDelta)/(Math.sqrt(((stdDevLeft^2)/leftTimes.length)/((stdDevRight^2)/rightTimes.length))));
+                    console.log("Z value: " + zValue);
+                    
+                    pValue = getPValue(zValue);
+                    console.log("p-value: " + pValue);
+
+                    document.getElementById("stats").innerHTML = "Z = " + zValue + ", p-value = " + pValue + " (" + (pValue >= 0.05 ? "non-" : "") + "significant)";
+
+
+                    if (popSize % currentSampleSize == 0)
+                        currentPartition = popSize/currentSampleSize;
+                    else 
+                        currentPartition = -1;
+
+                    if (currentPartition != -1) 
+                        document.getElementById("latest").innerHTML = "Number of subjects that entered the experiment: " + currentSampleSize + "(" + rightTimes.length + " had the right button position and " + leftTimes.length + " had the left button position)";
+                    else
+                        document.getElementById("latest").innerHTML = "Error? Current sample size: " + currentSampleSize;
+                
+
+                    document.getElementById("pending").innerHTML = (totPartitions - currentPartition) + " interim analyses pending (total subjects = " + popSize + " for power = " + expPower + "%)";
+
+                });
+            }
+
+        </script>
+
+    </head>
+
+    <body style="font-family: 'Nunito', sans-serif;" onload="start()">
+        <div class="jumbotron text-center">
+            <h1>Petition on the general opinion of puppies</h1>
+        </div>
+        <div class="container">
+            <div>
+                <h3 class="text-center">
+                    Dashboard
+                </h3>
+            </div>
+            <br>
+            <div class="row">
+                <p id="latest"></p>
+                <br><br>
+                <p id="stats"></p>
+                <br><br>
+                <p id="pending"></p>
+            </div>
+            <div class="row" style="height: 30px;">
+                <br><br><br><br><br><br><br><br><br><br>
+            </div>
+
+
+        </div>
+        <footer class="footer">
+            <a href="index2.html" style="color: white">Click me to see the other version</a>
+        </footer>
+    </body>
+</html>
