@@ -173,9 +173,14 @@
 
                     currentSampleSize = rightTimes.length + leftTimes.length;
                     console.log("current size:" + currentSampleSize);
+                    console.log(rightTimes)
+                    console.log(leftTimes)
+                    console.log(typeof rightTimes[0])
 
-                    for (let i = 0; i < rightTimes.length; i++)
+                    for (let i = 0; i < rightTimes.length; i++) {
                         sumRight += rightTimes[i];
+                        // console.log(sumRight)
+                    }
                     
                     sampleMeanRight = sumRight/rightTimes.length;
                     console.log("current right mean:" + sampleMeanRight);
@@ -207,7 +212,7 @@
                         currentPartition = -1;
 
                     if (currentPartition != -1) 
-                        document.getElementById("latest").innerHTML = "Number of subjects that entered the experiment: " + currentSampleSize + "(" + rightTimes.length + " had the right button position and " + leftTimes.length + " had the left button position)";
+                        document.getElementById("latest").innerHTML = "Number of subjects that entered the experiment: " + currentSampleSize + " (" + rightTimes.length + " had the right button position and " + leftTimes.length + " had the left button position)";
                     else
                         document.getElementById("latest").innerHTML = "Error? Current sample size: " + currentSampleSize;
                 
