@@ -162,7 +162,7 @@
                     currentPartition = 0,
                     totPartitions = 50,
                     expPower = 80,
-                    currentSampleSize,
+                    currentSampleSize = 0,
                     sumRight = 0,
                     sumLeft = 0,
                     sampleMeanRight, 
@@ -170,9 +170,10 @@
                     popMeanRight = 10000,
                     popMeanLeft = 13000,
                     popDelta = popMeanLeft - popMeanRight,
-                    stdDevRight,
-                    stdDevLeft,
-                    zValue;
+                    stdDevRight = 0,
+                    stdDevLeft = 0,
+                    zValue = 0,
+                    pValue = 0;
 
                 // for now I'll use the two sample z test
 
@@ -229,21 +230,16 @@
                     document.getElementById("stats").innerHTML = "Z = " + zValue + ", p-value = " + pValue + " (" + (pValue >= 0.05 ? "non-" : "") + "significant)";
 
 
-                    if (popSize % currentSampleSize == 0)
-                        currentPartition = popSize/currentSampleSize;
-                    else 
-                        currentPartition = -1;
-
+                    currentPartition = totPartitions - ((popSize - currentSampleSize)/10);
                     console.log("current partition: " + currentPartition);
-                    console.log("h: " + (totPartitions - currentPartition));
 
-                    if (currentPartition != -1) 
+                    if (currentPartition != -1)
                         document.getElementById("latest").innerHTML = "Number of subjects that entered the experiment: " + currentSampleSize + " (" + rightTimes.length + " had the right button position and " + leftTimes.length + " had the left button position)";
                     else
                         document.getElementById("latest").innerHTML = "Error? Current sample size: " + currentSampleSize;
                 
 
-                    document.getElementById("pending").innerHTML = (totPartitions - currentPartition) + " interim analyses pending (total subjects = " + popSize + " for power = " + expPower + "%)";
+                    document.getElementById("pending").innerHTML = currentPartition + " interim analysis/es done, " + (totPartitions - currentPartition) + " interim analyses pending (total subjects = " + popSize + " for power = " + expPower + "%)";
 
                 });
             }
