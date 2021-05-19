@@ -142,8 +142,8 @@
                     totPartitions = 50,
                     expPower = 80,
                     currentSampleSize,
-                    sumRight,
-                    sumLeft,
+                    sumRight = 0,
+                    sumLeft = 0,
                     sampleMeanRight, 
                     sampleMeanLeft,
                     popMeanRight = 10000,
@@ -173,13 +173,10 @@
 
                     currentSampleSize = rightTimes.length + leftTimes.length;
                     console.log("current size:" + currentSampleSize);
-                    console.log(rightTimes)
-                    console.log(leftTimes)
-                    console.log(typeof rightTimes[0])
 
                     for (let i = 0; i < rightTimes.length; i++) {
                         sumRight += rightTimes[i];
-                        // console.log(sumRight)
+                        console.log(sumRight)
                     }
                     
                     sampleMeanRight = sumRight/rightTimes.length;
