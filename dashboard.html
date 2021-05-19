@@ -100,6 +100,27 @@
                 return Math.sqrt(array.map(x => Math.pow(x - mean, 2)).reduce((a, b) => a + b) / n);
             }
 
+            function getTwoMeansZValue(parameters) {
+                let sm1 = parameters.sampleMean1,
+                    sm2 = parameters.sampleMean2,
+                    delta = parameters.popDelta,
+                    sd1 = parameters.stdDev1,
+                    sd2 = parameters.stdDev2,
+                    size1 = parameters.sampleSize1,
+                    size2 = parameters.sampleSize2;
+
+                let numerator = (sm1 - sm2) - delta;
+                console.log("numerator: " + numerator);
+
+                let d1 = ((sd1**2)/size1);
+                let d2 = ((sd2**2)/size2);
+
+                let denominator = Math.sqrt(d1 + d2);
+                console.log("denominator: " + denominator);
+
+                return (numerator/denominator);
+            }
+
             function getPValue(z) 
             {
                 // z == number of standard deviations from the mean
@@ -172,19 +193,16 @@
                     });
 
                     currentSampleSize = rightTimes.length + leftTimes.length;
-                    console.log("current size:" + currentSampleSize);
 
                     for (let i = 0; i < rightTimes.length; i++)
                         sumRight += rightTimes[i];
                     
                     sampleMeanRight = sumRight/rightTimes.length;
-                    console.log("current right mean:" + sampleMeanRight);
 
                     for (let i = 0; i < leftTimes.length; i++)
                         sumLeft += leftTimes[i];
 
                     sampleMeanLeft = sumLeft/leftTimes.length;
-                    console.log("current left mean:" + sampleMeanLeft);
 
                     stdDevRight = getStandardDeviation(rightTimes);
                     console.log("current right sd:" + stdDevRight);
@@ -192,13 +210,17 @@
                     stdDevLeft = getStandardDeviation(leftTimes);
                     console.log("current left sd:" + stdDevLeft);
 
-                    numerator = sampleMeanLeft - sampleMeanRight - popDelta;
-                    console.log("numerator: " + numerator);
+                    let package = {
+                        sampleMean1: sampleMeanLeft,
+                        sampleMean2: sampleMeanRight,
+                        popDelta: popDelta,
+                        stdDev1: stdDevLeft,
+                        stdDev2: stdDevRight,
+                        sampleSize1: leftTimes.length,
+                        sampleSize2: rightTimes.length
+                    };
 
-                    denominator = Math.sqrt(((stdDevLeft^2)/leftTimes.length) + ((stdDevRight^2)/rightTimes.length));
-                    console.log("denominator: " + denominator);
-
-                    zValue = numerator/denominator;
+                    zValue = getTwoMeansZValue(package);
                     console.log("Z value: " + zValue);
                     
                     pValue = getPValue(zValue);
@@ -211,6 +233,9 @@
                         currentPartition = popSize/currentSampleSize;
                     else 
                         currentPartition = -1;
+
+                    console.log("current partition: " + currentPartition);
+                    console.log("h: " + (totPartitions - currentPartition));
 
                     if (currentPartition != -1) 
                         document.getElementById("latest").innerHTML = "Number of subjects that entered the experiment: " + currentSampleSize + " (" + rightTimes.length + " had the right button position and " + leftTimes.length + " had the left button position)";
