@@ -247,6 +247,7 @@
 
                     document.getElementById("judgement").innerHTML = "Judging by the data we got so far, we can say that the alternative hypothesis is " + judgementSoFar + "statistically significant";
 
+                    // Should I keep both grey lines in the chart? Or should I differentiate based on the last value being positive or negative and only keep the appropriate one?
                     new Chart("myChart", {
                         type: "line",
                         data: {
@@ -292,6 +293,7 @@
                 <h3 id="pending"></h3>
                 <br>
                 <h3 id="judgement"></h3>
+                <br>
                 <canvas id="myChart" style="width:100%;max-width:700px"></canvas>
             </div>
             <div class="row" style="height: 30px;">
