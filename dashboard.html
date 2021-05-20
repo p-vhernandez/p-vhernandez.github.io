@@ -208,7 +208,7 @@
                     zValue = getTwoMeansZValue(package);
                     pValue = getPValue(zValue);
 
-                    document.getElementById("stats").innerHTML = "Z = " + zValue + ", p-value = " + pValue + " (" + (pValue >= 0.05 ? "non-" : "") + "significant)";
+                    document.getElementById("stats").innerHTML = "Z = " + zValue.toFixed(4) + ", p-value = " + pValue.toFixed(4) + " (" + (pValue >= 0.05 ? "non-" : "") + "significant)";
 
                     currentPartition = totPartitions - ((popSize - currentSampleSize)/10);
 
