@@ -213,11 +213,13 @@
                     currentPartition = totPartitions - ((popSize - currentSampleSize)/10);
 
                     if (currentPartition != -1)
-                        document.getElementById("latest").innerHTML = "Number of subjects that entered the experiment so far: " + currentSampleSize + " (" + rightTimes.length + " had the right button position and " + leftTimes.length + " had the left button position)";
+                        document.getElementById("latest").innerHTML = "Number of subjects that entered the experiment so far: " + currentSampleSize + 
+                            " (" + rightTimes.length + " had the right button position and " + leftTimes.length + " had the left button position)";
                     else
                         document.getElementById("latest").innerHTML = "Error? Current sample size: " + currentSampleSize;
 
-                    document.getElementById("pending").innerHTML = currentPartition + " interim analysis/es done, " + (totPartitions - currentPartition) + " interim analyses pending (total subjects = " + popSize + " for power = " + expPower + "%)";
+                    document.getElementById("pending").innerHTML = currentPartition + " interim " + (currentPartition == 1 ? "analysis" : "analyses") + " done, " + 
+                        (totPartitions - currentPartition) + " interim analyses pending (total subjects = " + popSize + " for power = " + expPower + "%)";
 
                     let xValues = ["1/10","2/10","3/10","4/10","5/10","6/10","7/10","8/10","9/10","10/10"];
 
