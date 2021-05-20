@@ -213,7 +213,7 @@
                     currentPartition = totPartitions - ((popSize - currentSampleSize)/10);
 
                     if (currentPartition != -1)
-                        document.getElementById("latest").innerHTML = "Number of subjects that entered the experiment: " + currentSampleSize + " (" + rightTimes.length + " had the right button position and " + leftTimes.length + " had the left button position)";
+                        document.getElementById("latest").innerHTML = "Number of subjects that entered the experiment so far: " + currentSampleSize + " (" + rightTimes.length + " had the right button position and " + leftTimes.length + " had the left button position)";
                     else
                         document.getElementById("latest").innerHTML = "Error? Current sample size: " + currentSampleSize;
 
@@ -236,7 +236,12 @@
                         data: {
                             labels: xValues,
                             datasets: [{
-                                data: [0, 6.0879, 4.2288, 3.3962, 2.9061, 2.5789, 2.3417, 2.1598, 2.0146, 1.8952, 1.7949],
+                                data: [6.0879, 4.2288, 3.3962, 2.9061, 2.5789, 2.3417, 2.1598, 2.0146, 1.8952, 1.7949],
+                                borderColor: "grey",
+                                fill: false
+                            },
+                            {
+                                data: [-6.0879, -4.2288, -3.3962, -2.9061, -2.5789, -2.3417, -2.1598, -2.0146, -1.8952, -1.7949],
                                 borderColor: "grey",
                                 fill: false
                             },
@@ -263,7 +268,7 @@
             <h1>Dashboard</h1>
         </div>
         <div class="container">
-            <div class="row" class="text-center">
+            <div class="row">
                 <h3 id="latest"></h3>
                 <br><br>
                 <h3 id="stats"></h3>
