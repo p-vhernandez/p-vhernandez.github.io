@@ -217,24 +217,27 @@
 
                     document.getElementById("pending").innerHTML = currentPartition + " interim analysis/es done, " + (totPartitions - currentPartition) + " interim analyses pending (total subjects = " + popSize + " for power = " + expPower + "%)";
 
-                    let xValues = [100,200,300,400,500,600,700,800,900,1000];
+                    let xValues = ["1/10","2/10","3/10","4/10","5/10","6/10","7/10","8/10","9/10","10/10"];
+
+                    setCookie("z" + currentPartition, zValue, 365);
+
+                    let resultZs = new Array();
+                    resultZs[currentPartition-1] = zValue;
+                    // WIP: get cookies; you know that there are N previous partitions because that's currentPartition-1, so you can more efficiently cycle through getting them
 
                     new Chart("myChart", {
                         type: "line",
                         data: {
                             labels: xValues,
                             datasets: [{
-                            data: [860,1140,1060,1060,1070,1110,1330,2210,7830,2478],
-                            borderColor: "red",
-                            fill: false
-                            },{
-                            data: [1600,1700,1700,1900,2000,2700,4000,5000,6000,7000],
-                            borderColor: "green",
-                            fill: false
-                            },{
-                            data: [300,700,2000,5000,6000,4000,2000,1000,200,100],
-                            borderColor: "blue",
-                            fill: false
+                                data: [6.0879, 4.2288, 3.3962, 2.9061, 2.5789, 2.3417, 2.1598, 2.0146, 1.8952, 1.7949],
+                                borderColor: "grey",
+                                fill: false
+                            },
+                            {
+                                data: [300,700,2000,5000,6000,4000,2000,1000,200,100],
+                                borderColor: "purple",
+                                fill: false
                             }]
                         },
                         options: {
@@ -254,20 +257,18 @@
             <h1>Dashboard</h1>
         </div>
         <div class="container">
-            <div class="row">
-                <h3 id="latest" class="text-center"></h3>
+            <div class="row" class="text-center">
+                <h3 id="latest"></h3>
                 <br><br>
-                <h3 id="stats" class="text-center"></h3>
+                <h3 id="stats"></h3>
                 <br><br>
-                <h3 id="pending" class="text-center"></h3>
+                <h3 id="pending"></h3>
                 <br><br>
                 <canvas id="myChart" style="width:100%;max-width:700px"></canvas>
             </div>
             <div class="row" style="height: 30px;">
                 <br><br><br><br><br><br><br><br><br><br>
             </div>
-
-
         </div>
     </body>
 </html>
