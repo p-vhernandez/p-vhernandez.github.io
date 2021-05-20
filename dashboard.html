@@ -225,6 +225,10 @@
                     resultZs[currentPartition-1] = zValue;
                     // WIP: get cookies; you know that there are N previous partitions because that's currentPartition-1, so you can more efficiently cycle through getting them
 
+                    for (let i = 0; i < (currentPartition - 1); i++) {
+                        resultZs[i] = getCookie("z" + (i + 1));
+                    }
+
                     new Chart("myChart", {
                         type: "line",
                         data: {
@@ -235,7 +239,7 @@
                                 fill: false
                             },
                             {
-                                data: [300,700,2000,5000,6000,4000,2000,1000,200,100],
+                                data: resultZs,
                                 borderColor: "purple",
                                 fill: false
                             }]
