@@ -219,7 +219,7 @@
                         document.getElementById("latest").innerHTML = "Error? Current sample size: " + currentSampleSize;
 
                     document.getElementById("pending").innerHTML = currentPartition + " interim " + (currentPartition == 1 ? "analysis" : "analyses") + " done, " + 
-                        (totPartitions - currentPartition) + " interim analyses pending (total subjects = " + popSize + " for power = " + expPower + "%)";
+                        (totPartitions - currentPartition) + " interim " + (currentPartition == 49 ? "analysis" : "analyses") + " pending (total subjects = " + popSize + " for power = " + expPower + "%)";
 
                     let xValues = ["1/10","2/10","3/10","4/10","5/10","6/10","7/10","8/10","9/10","10/10"];
 
@@ -287,7 +287,7 @@
             <h1>Dashboard</h1>
         </div>
         <div class="container">
-            <div class="row">
+            <div class="row" style="line-height: 1.6">
                 <h3 id="latest"></h3>
                 <br>
                 <h3 id="stats"></h3>
