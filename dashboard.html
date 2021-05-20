@@ -156,7 +156,7 @@
                     sampleMeanLeft,
                     popMeanRight = 10000,
                     popMeanLeft = 13000,
-                    popDelta = popMeanLeft - popMeanRight,
+                    popDelta = 0, // we're under the null hypothesis
                     stdDevRight = 0,
                     stdDevLeft = 0,
                     zValue = 0,
@@ -239,29 +239,34 @@
 
                     let judgementSoFar = "NOT ";
 
+                    // improve: compare the absolute value with the positive interimZs value, since it's symmetrical
+                    // we can do this because the curves are symmetrical, but if they weren't (e.g. the f test) then we would need to do it verbosely
                     if (resultZs[resultZs.length - 1] > 0) {
                         if (resultZs[resultZs.length -1] > interimZs[resultZs.length - 1])
-                            judgementSoFar = ""
+                            judgementSoFar = "";
                     } else {
                         if (resultZs[resultZs.length -1] < nInterimZs[resultZs.length - 1])
-                            judgementSoFar = ""
+                            judgementSoFar = "";
                     }
 
                     document.getElementById("judgement").innerHTML = "Judging by the data we got so far, we can say that the alternative hypothesis is " + judgementSoFar + "statistically significant";
 
                     // Should I keep both grey lines in the chart? Or should I differentiate based on the last value being positive or negative and only keep the appropriate one?
+                    // ANSWER: I should only keep one, since we're testing a 1-tailed hypothesis
+                    // BUT I should keep and show both
+                    // the following plot also works with 2-tailed hypotheses
                     new Chart("myChart", {
                         type: "line",
                         data: {
                             labels: xValues,
                             datasets: [{
                                 data: interimZs,
-                                borderColor: "grey",
+                                borderColor: "grey", // light grey
                                 fill: false
                             },
                             {
                                 data: nInterimZs,
-                                borderColor: "grey",
+                                borderColor: "grey", // light grey
                                 fill: false
                             },
                             {
@@ -289,12 +294,10 @@
         <div class="container">
             <div class="row">
                 <h3 id="latest" style="line-height: 1.6"></h3>
-                <br>
                 <h3 id="stats" style="line-height: 1.6"></h3>
-                <br>
                 <h3 id="pending" style="line-height: 1.6"></h3>
-                <br>
                 <h3 id="judgement" style="line-height: 1.6"></h3>
+                <h3 style="line-height: 1.6">Currently testing a 1-tailed hypothesis</h3>
                 <br>
                 <canvas id="myChart" style="width:100%;max-width:700px"></canvas>
             </div>
