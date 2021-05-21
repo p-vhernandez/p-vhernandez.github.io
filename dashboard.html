@@ -82,6 +82,19 @@
                 return (getCookie(cname) != "cookie_not_found" ? true : false);
             }
 
+            function msToTime(duration) {
+                let milliseconds = parseInt((duration % 1000) / 100),
+                    seconds = Math.floor((duration / 1000) % 60),
+                    minutes = Math.floor((duration / (1000 * 60)) % 60),
+                    hours = Math.floor((duration / (1000 * 60 * 60)) % 24);
+
+                hours = (hours < 10) ? "0" + hours : hours;
+                minutes = (minutes < 10) ? "0" + minutes : minutes;
+                seconds = (seconds < 10) ? "0" + seconds : seconds;
+
+                return "~" + hours + " hour, " + minutes + " minutes";
+            }
+
             function getStandardDeviation (array) {
                 const n = array.length;
                 const mean = array.reduce((a, b) => a + b) / n;
@@ -143,13 +156,17 @@
             }
 
             function start() {
-                let rightTimes = new Array();
-                let leftTimes = new Array();
-                let joinList = 0;
+                let rightTimes = new Array(),
+                    leftTimes = new Array(),
+                    joinList = 0,
+                    startTime = 0,
+                    estDuration = 0,
+                    endTime = 0;
 
                 let popSize = 500,
                     currentPartition = 0,
-                    totPartitions = 50,
+                    totPartitions = 50, // CHANGE THESE VALUES TO THE FINAL ONES IN THE FINAL VERSION
+                    partitionSize = 10,
                     expPower = 80,
                     currentSampleSize = 0,
                     sumRight = 0,
@@ -178,112 +195,126 @@
                                 rightTimes.push(doc.data().time_to_join);
                             else
                                 leftTimes.push(doc.data().time_to_join);
-                            joinList++; // this will be useful for the second hyp
+                            // joinList++; // this will be useful for the second hyp
                         }
                     });
 
                     currentSampleSize = rightTimes.length + leftTimes.length;
+                    currentPartition = totPartitions - ((popSize - currentSampleSize)/partitionSize);                            
 
-                    for (let i = 0; i < rightTimes.length; i++)
-                        sumRight += rightTimes[i];
-                    
-                    sampleMeanRight = sumRight/rightTimes.length;
+                    db.collection("index").where("surname","==","Number 1").get().then((querySnapshot) => {
+                        querySnapshot.forEach((doc) => {
+                            startTime = Date.parse(doc.data().visits[0]);
+                        });
 
-                    for (let i = 0; i < leftTimes.length; i++)
-                        sumLeft += leftTimes[i];
+                        db.collection("index").where("surname","==","Number " + currentSampleSize).get().then((querySnapshot) => {
+                            querySnapshot.forEach((doc) => {
+                                endTime = (Date.parse(doc.data().visits[0]) + doc.data().time_to_join);
+                            });
 
-                    sampleMeanLeft = sumLeft/leftTimes.length;
+                            // currentpart : duration = totparts : totdur -> duration * totparts / currentpart
+                            estDuration = msToTime(((endTime - startTime) * totPartitions) / currentPartition);
 
-                    stdDevRight = getStandardDeviation(rightTimes);
-                    stdDevLeft = getStandardDeviation(leftTimes);
+                            document.getElementById("duration").innerHTML = "Estimated time missing (based on the duration so far): " + estDuration;
 
-                    let package = {
-                        sampleMean1: sampleMeanLeft,
-                        sampleMean2: sampleMeanRight,
-                        popDelta: popDelta,
-                        stdDev1: stdDevLeft,
-                        stdDev2: stdDevRight,
-                        sampleSize1: leftTimes.length,
-                        sampleSize2: rightTimes.length
-                    };
+                            for (let i = 0; i < rightTimes.length; i++)
+                                sumRight += rightTimes[i];
+                            
+                            sampleMeanRight = sumRight/rightTimes.length;
 
-                    console.log(package);
+                            for (let i = 0; i < leftTimes.length; i++)
+                                sumLeft += leftTimes[i];
 
-                    zValue = getTwoMeansZValue(package);
-                    pValue = getPValue(zValue);
+                            sampleMeanLeft = sumLeft/leftTimes.length;
 
-                    document.getElementById("stats").innerHTML = "Z = " + zValue.toFixed(4) + ", p-value = " + pValue.toFixed(4) + " (" + (pValue >= 0.05 ? "non-" : "") + "significant)";
+                            stdDevRight = getStandardDeviation(rightTimes);
+                            stdDevLeft = getStandardDeviation(leftTimes);
 
-                    currentPartition = totPartitions - ((popSize - currentSampleSize)/10);
+                            let package = {
+                                sampleMean1: sampleMeanLeft,
+                                sampleMean2: sampleMeanRight,
+                                popDelta: popDelta,
+                                stdDev1: stdDevLeft,
+                                stdDev2: stdDevRight,
+                                sampleSize1: leftTimes.length,
+                                sampleSize2: rightTimes.length
+                            };
 
-                    if (currentPartition != -1)
-                        document.getElementById("latest").innerHTML = "Number of subjects that entered the experiment so far: " + currentSampleSize + 
-                            " (" + rightTimes.length + " had the right button position and " + leftTimes.length + " had the left button position)";
-                    else
-                        document.getElementById("latest").innerHTML = "Error? Current sample size: " + currentSampleSize;
+                            zValue = getTwoMeansZValue(package);
+                            pValue = getPValue(zValue);
+                            console.log(pValue)
 
-                    document.getElementById("pending").innerHTML = currentPartition + " interim " + (currentPartition == 1 ? "analysis" : "analyses") + " done, " + 
-                        (totPartitions - currentPartition) + " interim " + (currentPartition == 49 ? "analysis" : "analyses") + " pending (total subjects = " + popSize + " for power = " + expPower + "%)";
+                            document.getElementById("stats").innerHTML = "Z = " + zValue.toFixed(4) + ", p-value = " + pValue.toFixed(4) + " (" + (pValue >= 0.05 ? "non-" : "") + "significant)";
 
-                    let xValues = ["1/10","2/10","3/10","4/10","5/10","6/10","7/10","8/10","9/10","10/10"];
+                            if (currentPartition != -1)
+                                document.getElementById("latest").innerHTML = "Number of subjects that entered the experiment so far: " + currentSampleSize + 
+                                    " (" + rightTimes.length + " had the right button position and " + leftTimes.length + " had the left button position)";
+                            else
+                                document.getElementById("latest").innerHTML = "Error? Current sample size: " + currentSampleSize;
 
-                    setCookie("z" + currentPartition, zValue, 365);
+                            document.getElementById("pending").innerHTML = currentPartition + " interim " + (currentPartition == 1 ? "analysis" : "analyses") + " done, " + 
+                                (totPartitions - currentPartition) + " interim " + (currentPartition == 49 ? "analysis" : "analyses") + " pending (total subjects = " + popSize + " for power = " + expPower + "%)";
 
-                    let resultZs = new Array();
-                    resultZs[currentPartition-1] = zValue;
-                    // WIP: get cookies; you know that there are N previous partitions because that's currentPartition-1, so you can more efficiently cycle through getting them
+                            let xValues = ["1/10","2/10","3/10","4/10","5/10","6/10","7/10","8/10","9/10","10/10"];
 
-                    for (let i = 0; i < (currentPartition - 1); i++) {
-                        resultZs[i] = getCookie("z" + (i + 1));
-                    }
+                            setCookie("z" + currentPartition, zValue, 365);
 
-                    // These values come from the R script
-                    let interimZs = [6.0879, 4.2288, 3.3962, 2.9061, 2.5789, 2.3417, 2.1598, 2.0146, 1.8952, 1.7949];
-                    let nInterimZs = [-6.0879, -4.2288, -3.3962, -2.9061, -2.5789, -2.3417, -2.1598, -2.0146, -1.8952, -1.7949];
+                            let resultZs = new Array();
+                            resultZs[currentPartition-1] = zValue;
+                            // WIP: get cookies; you know that there are N previous partitions because that's currentPartition-1, so you can more efficiently cycle through getting them
 
-                    let judgementSoFar = "NOT ";
+                            for (let i = 0; i < (currentPartition - 1); i++) {
+                                resultZs[i] = getCookie("z" + (i + 1));
+                            }
 
-                    // improve: compare the absolute value with the positive interimZs value, since it's symmetrical
-                    // we can do this because the curves are symmetrical, but if they weren't (e.g. the f test) then we would need to do it verbosely
-                    if (resultZs[resultZs.length - 1] > 0) {
-                        if (resultZs[resultZs.length -1] > interimZs[resultZs.length - 1])
-                            judgementSoFar = "";
-                    } else {
-                        if (resultZs[resultZs.length -1] < nInterimZs[resultZs.length - 1])
-                            judgementSoFar = "";
-                    }
+                            // These values come from the R script
+                            let interimZs = [6.0879, 4.2288, 3.3962, 2.9061, 2.5789, 2.3417, 2.1598, 2.0146, 1.8952, 1.7949];
+                            let nInterimZs = [-6.0879, -4.2288, -3.3962, -2.9061, -2.5789, -2.3417, -2.1598, -2.0146, -1.8952, -1.7949];
 
-                    document.getElementById("judgement").innerHTML = "Judging by the data we got so far, we can say that the alternative hypothesis is " + judgementSoFar + "statistically significant";
+                            let judgementSoFar = "NOT ";
 
-                    // Should I keep both grey lines in the chart? Or should I differentiate based on the last value being positive or negative and only keep the appropriate one?
-                    // ANSWER: I should only keep one, since we're testing a 1-tailed hypothesis
-                    // BUT I should keep and show both
-                    // the following plot also works with 2-tailed hypotheses
-                    new Chart("myChart", {
-                        type: "line",
-                        data: {
-                            labels: xValues,
-                            datasets: [{
-                                data: interimZs,
-                                borderColor: "grey", // light grey
-                                fill: false
-                            },
-                            {
-                                data: nInterimZs,
-                                borderColor: "grey", // light grey
-                                fill: false
-                            },
-                            {
-                                data: resultZs,
-                                borderColor: "purple",
-                                fill: false
-                            }]
-                        },
-                        options: {
-                            legend: {display: false}
-                        }
+                            // improve: compare the absolute value with the positive interimZs value, since it's symmetrical
+                            // we can do this because the curves are symmetrical, but if they weren't (e.g. the f test) then we would need to do it verbosely
+                            if (resultZs[resultZs.length - 1] > 0) {
+                                if (resultZs[resultZs.length -1] > interimZs[resultZs.length - 1])
+                                    judgementSoFar = "";
+                            } else {
+                                if (resultZs[resultZs.length -1] < nInterimZs[resultZs.length - 1])
+                                    judgementSoFar = "";
+                            }
+
+                            document.getElementById("judgement").innerHTML = "Judging by the data we got so far, we can say that the alternative hypothesis is " + judgementSoFar + "statistically significant";
+
+                            // Should I keep both grey lines in the chart? Or should I differentiate based on the last value being positive or negative and only keep the appropriate one?
+                            // ANSWER: I should only keep one, since we're testing a 1-tailed hypothesis
+                            // BUT I should keep and show both
+                            // the following plot also works with 2-tailed hypotheses
+                            new Chart("myChart", {
+                                type: "line",
+                                data: {
+                                    labels: xValues,
+                                    datasets: [{
+                                        data: interimZs,
+                                        borderColor: "grey", // light grey
+                                        fill: false
+                                    },
+                                    {
+                                        data: nInterimZs,
+                                        borderColor: "grey", // light grey
+                                        fill: false
+                                    },
+                                    {
+                                        data: resultZs,
+                                        borderColor: "purple",
+                                        fill: false
+                                    }]
+                                },
+                                options: {
+                                    legend: {display: false}
+                                }
+                            });
+                        });
                     });
-
                 });
             }
 
@@ -300,8 +331,9 @@
                 <h3 id="latest" style="line-height: 1.6"></h3>
                 <h3 id="stats" style="line-height: 1.6"></h3>
                 <h3 id="pending" style="line-height: 1.6"></h3>
-                <h3 id="judgement" style="line-height: 1.6"></h3>
-                <h3 style="line-height: 1.6">Currently testing a 1-tailed hypothesis</h3>
+                <h4 id="duration" style="line-height: 1.6"></h4>
+                <b><h3 id="judgement" style="line-height: 1.6"></h3></b>
+                <h4 style="line-height: 1.6">Currently testing a 1-tailed hypothesis</h4>
                 <br>
                 <canvas id="myChart" style="width:100%;max-width:700px"></canvas>
             </div>
