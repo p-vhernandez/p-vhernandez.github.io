@@ -163,11 +163,13 @@
                         totPartitions = 50, // CHANGE THESE VALUES TO THE FINAL ONES IN THE FINAL VERSION
                         partitionSize = 10,
                         expPower = 80,
+                        pInterval = 0.05,
                         popMeanRight = 10000,
                         popMeanLeft = 13000,
                         popDelta = 0, // we're under the null hypothesis
                         interimZs = [6.0879, 4.2288, 3.3962, 2.9061, 2.5789, 2.3417, 2.1598, 2.0146, 1.8952, 1.7949], // These values come from the R script
-                        nInterimZs = [-6.0879, -4.2288, -3.3962, -2.9061, -2.5789, -2.3417, -2.1598, -2.0146, -1.8952, -1.7949]; // These values come from the R script
+                        nInterimZs = [-6.0879, -4.2288, -3.3962, -2.9061, -2.5789, -2.3417, -2.1598, -2.0146, -1.8952, -1.7949], // These values come from the R script
+                        asymmetricalCurves = false; 
 
                 let xValues = new Array();  // the partitions in the graph
 
@@ -257,7 +259,7 @@
                             });
                             pValue = getPValue(zValue);
 
-                            document.getElementById("stats").innerHTML = "Z = " + zValue.toFixed(4) + ", p-value = " + pValue.toFixed(4) + " (" + (pValue >= 0.05 ? "non-" : "") + "significant)";
+                            document.getElementById("stats").innerHTML = "Z = " + zValue.toFixed(4) + ", p-value = " + pValue.toFixed(4) + " (" + (pValue >= pInterval ? "non-" : "") + "significant)";
 
                             if (currentPartition != -1)
                                 document.getElementById("latest").innerHTML = "Number of subjects that entered the experiment so far: " + currentSampleSize + 
@@ -268,10 +270,10 @@
                             if (isItWhole) {
                                 document.getElementById("duration").innerHTML = "Estimated time until the end of the testing session (based on the duration so far): " + estDuration;
                                 document.getElementById("pending").innerHTML = currentPartition + " interim " + (currentPartition == 1 ? "analysis" : "analyses") + " done, " + 
-                                (totPartitions - currentPartition) + " interim " + (currentPartition == 49 ? "analysis" : "analyses") + " pending (total subjects = " + popSize + " for power = " + expPower + "%)";
+                                (totPartitions - currentPartition) + " interim " + (currentPartition == (totPartitions-1) ? "analysis" : "analyses") + " pending (total subjects = " + popSize + " for power = " + expPower + "%)";
                             }
                             else
-                                document.getElementById("duration").innerHTML = "The interim analysis number " + currentPartition + " is in progress. The data in this page is being updated in real time.";
+                                document.getElementById("duration").innerHTML = "The interim analysis number " + currentPartition + " is in progress. The data in this page is being updated in real time";
                                 // + " Estimated time until the end of the interim analysis in progress: " + estSingleDuration;
 
                             setCookie("z" + currentPartition, zValue, 365);
@@ -280,19 +282,21 @@
                             resultZs[currentPartition - 1] = zValue;
                             // WIP: get cookies; you know that there are N previous partitions because that's currentPartition-1, so you can more efficiently cycle through getting them
 
-                            for (let i = 0; i < (currentPartition - 1); i++) {
+                            for (let i = 0; i < (currentPartition - 1); i++)
                                 resultZs[i] = getCookie("z" + (i + 1));
-                            }
 
                             let judgementSoFar = "NOT ";
 
-                            // improve: compare the absolute value with the positive interimZs value, since it's symmetrical
-                            // we can do this because the curves are symmetrical, but if they weren't (e.g. the f test) then we would need to do it verbosely
-                            if (resultZs[resultZs.length - 1] > 0) {
-                                if (resultZs[resultZs.length -1] > interimZs[resultZs.length - 1])
-                                    judgementSoFar = "";
+                            if (asymmetricalCurves) {
+                                if (resultZs[resultZs.length - 1] >= 0) {
+                                    if (resultZs[resultZs.length -1] > interimZs[resultZs.length - 1])
+                                        judgementSoFar = "";
+                                } else {
+                                    if (resultZs[resultZs.length -1] < nInterimZs[resultZs.length - 1])
+                                        judgementSoFar = "";
+                                }
                             } else {
-                                if (resultZs[resultZs.length -1] < nInterimZs[resultZs.length - 1])
+                                if (Math.abs(resultZs[resultZs.length - 1]) > interimZs[resultZs.length - 1])
                                     judgementSoFar = "";
                             }
 
