@@ -95,7 +95,7 @@
                 return "~" + hours + (hours == 1 ? " hour, ": " hours, ") + minutes + (minutes == 1 ? " minute": " minutes");
             }
 
-            function getStandardDeviation (array) {
+            function getStandardDeviation(array) {
                 const n = array.length;
                 const mean = array.reduce((a, b) => a + b) / n;
                 return Math.sqrt(array.map(x => Math.pow(x - mean, 2)).reduce((a, b) => a + b) / n);
@@ -166,8 +166,6 @@
                         popMeanRight = 10000,
                         popMeanLeft = 13000,
                         popDelta = 0; // we're under the null hypothesis
-                        
-                // for now I'll use the two sample z test
 
                 // db.collection("index").get().then((querySnapshot) => {
                 // db.collection("index").onSnapshot((querySnapshot) => {
@@ -185,7 +183,7 @@
                         // console.log(doc.id, " => ", doc.data());
                         //if (doc.data().joined) {
                             
-                            // joinList++; // this will be useful for the second hyp
+                            // joinList++; // this might be useful for the second hyp
                         //}
                     });
 
@@ -239,7 +237,7 @@
                             stdDevRight = getStandardDeviation(rightTimes);
                             stdDevLeft = getStandardDeviation(leftTimes);
 
-                            let package = {
+                            zValue = getTwoMeansZValue({
                                 sampleMean1: sampleMeanLeft,
                                 sampleMean2: sampleMeanRight,
                                 popDelta: popDelta,
@@ -247,9 +245,7 @@
                                 stdDev2: stdDevRight,
                                 sampleSize1: leftTimes.length,
                                 sampleSize2: rightTimes.length
-                            };
-
-                            zValue = getTwoMeansZValue(package);
+                            });
                             pValue = getPValue(zValue);
 
                             document.getElementById("stats").innerHTML = "Z = " + zValue.toFixed(4) + ", p-value = " + pValue.toFixed(4) + " (" + (pValue >= 0.05 ? "non-" : "") + "significant)";
@@ -297,7 +293,8 @@
                                     judgementSoFar = "";
                             }
 
-                            document.getElementById("judgement").innerHTML = "Judging by the data we got so far, we can say that the alternative hypothesis is " + judgementSoFar + "statistically significant";
+                            document.getElementById("judgement").innerHTML = "Judging by the data we got so far, we can say that the alternative hypothesis is " + judgementSoFar + "statistically significant" +
+                                (judgementSoFar == "" ? ". If wanted so, this experiment could be stopped right now and a valid final decision could be made" : "");
 
                             document.getElementById("loadandtail").innerHTML = "Currently testing a " + tails + "-tailed hypothesis";
 
