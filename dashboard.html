@@ -155,11 +155,9 @@
 
             function start() {
                 let rightTimes = new Array(),
-                    leftTimes = new Array(),
+                    leftTimes = new Array();
                     // joinList = 0,
-                    startTime = 0,
-                    estDuration = 0,
-                    endTime = 0;
+                    
 
                 // for now I'll use the two sample z test
 
@@ -186,7 +184,10 @@
                         //}
                     });
 
-                    let popSize = 500,
+                    let startTime = 0,
+                        estDuration = 0,
+                        endTime = 0, 
+                        popSize = 500,
                         currentPartition = 0,
                         totPartitions = 50, // CHANGE THESE VALUES TO THE FINAL ONES IN THE FINAL VERSION
                         partitionSize = 10,
@@ -227,10 +228,8 @@
 
                             // estSingleDuration = msToTime((Date.now() - startTime) - (endTime - startTime));
 
-                            for (let i = 0; i < rightTimes.length; i++) {
+                            for (let i = 0; i < rightTimes.length; i++)
                                 sumRight += rightTimes[i];
-                                console.log(sumRight)
-                            }
                             
                             sampleMeanRight = sumRight/rightTimes.length;
 
@@ -269,7 +268,7 @@
                                 (totPartitions - currentPartition) + " interim " + (currentPartition == 49 ? "analysis" : "analyses") + " pending (total subjects = " + popSize + " for power = " + expPower + "%)";
                             }
                             else
-                                document.getElementById("duration").innerHTML = "The interim analysis number " + currentPartition + " is in progress. The data in this page will be updated once it's finished.";
+                                document.getElementById("duration").innerHTML = "The interim analysis number " + currentPartition + " is in progress. The data in this page is being updated in real time.";
                                 // + " Estimated time until the end of the interim analysis in progress: " + estSingleDuration;
 
                             let xValues = ["1/10","2/10","3/10","4/10","5/10","6/10","7/10","8/10","9/10","10/10"];
