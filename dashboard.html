@@ -231,7 +231,7 @@
                             });
 
                             // currentpart : duration = totparts : totdur -> duration * totparts / currentpart
-                            estDuration = msToTime(((endTime - startTime) * totPartitions) / currentPartition);
+                            estDuration = msToTime(((endTime - startTime) * totPartitions) / (isItWhole ? currentPartition : (currentPartition - 1)));
 
                             // estSingleDuration = msToTime((Date.now() - startTime) - (endTime - startTime));
 
@@ -268,19 +268,20 @@
                                 document.getElementById("latest").innerHTML = "Error? Current sample size: " + currentSampleSize;
 
                             if (isItWhole) {
-                                document.getElementById("duration").innerHTML = "Estimated time until the end of the testing session (based on the duration so far): " + estDuration;
                                 document.getElementById("pending").innerHTML = currentPartition + " interim " + (currentPartition == 1 ? "analysis" : "analyses") + " done, " + 
                                 (totPartitions - currentPartition) + " interim " + (currentPartition == (totPartitions-1) ? "analysis" : "analyses") + " pending (total subjects = " + popSize + " for power = " + expPower + "%)";
+                                // document.getElementById("duration").innerHTML = "Estimated time until the end of the testing session (based on the duration so far): " + estDuration;
                             }
                             else
-                                document.getElementById("duration").innerHTML = "The interim analysis number " + currentPartition + " is in progress. The data in this page is being updated in real time";
+                                document.getElementById("pending").innerHTML = "The interim analysis number " + currentPartition + " is in progress. The data in this page is being updated in real time";
                                 // + " Estimated time until the end of the interim analysis in progress: " + estSingleDuration;
+                                
+                            document.getElementById("duration").innerHTML = "Estimated time until the end of the testing session (based on the duration so far): " + estDuration;
 
                             setCookie("z" + currentPartition, zValue, 365);
 
                             let resultZs = new Array();
                             resultZs[currentPartition - 1] = zValue;
-                            // WIP: get cookies; you know that there are N previous partitions because that's currentPartition-1, so you can more efficiently cycle through getting them
 
                             for (let i = 0; i < (currentPartition - 1); i++)
                                 resultZs[i] = getCookie("z" + (i + 1));
