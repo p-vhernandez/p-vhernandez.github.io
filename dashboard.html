@@ -157,12 +157,17 @@
                 let rightTimes = new Array(),
                     leftTimes = new Array();
                     // joinList = 0,
-                    
 
+                const   tails = 1, 
+                        popSize = 500,
+                        totPartitions = 50, // CHANGE THESE VALUES TO THE FINAL ONES IN THE FINAL VERSION
+                        partitionSize = 10,
+                        expPower = 80,
+                        popMeanRight = 10000,
+                        popMeanLeft = 13000,
+                        popDelta = 0; // we're under the null hypothesis
+                        
                 // for now I'll use the two sample z test
-
-                // protip: use the left one as baseline/population so you'll see 
-                // whether the right one is statistically-significantly better?
 
                 // db.collection("index").get().then((querySnapshot) => {
                 // db.collection("index").onSnapshot((querySnapshot) => {
@@ -186,20 +191,13 @@
 
                     let startTime = 0,
                         estDuration = 0,
-                        endTime = 0, 
-                        popSize = 500,
-                        currentPartition = 0,
-                        totPartitions = 50, // CHANGE THESE VALUES TO THE FINAL ONES IN THE FINAL VERSION
-                        partitionSize = 10,
-                        expPower = 80,
+                        endTime = 0,
                         currentSampleSize = 0,
+                        currentPartition = 0,
                         sumRight = 0,
                         sumLeft = 0,
                         sampleMeanRight = 0, 
                         sampleMeanLeft = 0,
-                        popMeanRight = 10000,
-                        popMeanLeft = 13000,
-                        popDelta = 0, // we're under the null hypothesis
                         stdDevRight = 0,
                         stdDevLeft = 0,
                         zValue = 0,
@@ -301,9 +299,10 @@
 
                             document.getElementById("judgement").innerHTML = "Judging by the data we got so far, we can say that the alternative hypothesis is " + judgementSoFar + "statistically significant";
 
+                            document.getElementById("loadandtail").innerHTML = "Currently testing a " + tails + "-tailed hypothesis";
+
                             // Should I keep both grey lines in the chart? Or should I differentiate based on the last value being positive or negative and only keep the appropriate one?
-                            // ANSWER: I should only keep one, since we're testing a 1-tailed hypothesis
-                            // BUT I should keep and show both
+                            // ANSWER: I should keep and show both
                             // the following plot also works with 2-tailed hypotheses
                             new Chart("myChart", {
                                 type: "line",
@@ -311,12 +310,12 @@
                                     labels: xValues,
                                     datasets: [{
                                         data: interimZs,
-                                        borderColor: "grey", // light grey
+                                        borderColor: "lightgrey",
                                         fill: false
                                     },
                                     {
                                         data: nInterimZs,
-                                        borderColor: "grey", // light grey
+                                        borderColor: "lightgrey",
                                         fill: false
                                     },
                                     {
@@ -349,7 +348,7 @@
                 <h3 id="pending" style="line-height: 1.6"></h3>
                 <h4 id="duration" style="line-height: 1.6"></h4>
                 <h3 id="judgement" style="line-height: 1.6"></h3>
-                <h4 style="line-height: 1.6">Currently testing a 1-tailed hypothesis</h4>
+                <h4 id="loadandtail" style="line-height: 1.6">Loading...</h4>
                 <br>
                 <canvas id="myChart" style="width:100%;max-width:700px"></canvas>
             </div>
