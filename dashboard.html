@@ -201,9 +201,6 @@
                     currentPartition = totPartitions - ((popSize - currentSampleSize)/partitionSize);
 
                     let isItWhole = (currentPartition - Math.floor(currentPartition)) == 0;
-
-                    console.log(isItWhole)
-                    console.log(currentPartition - Math.floor(currentPartition))
    
                     if (!isItWhole)
                         currentPartition = Math.ceil(currentPartition);
