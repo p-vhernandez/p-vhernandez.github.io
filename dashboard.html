@@ -219,7 +219,7 @@
                             // currentpart : duration = totparts : totdur -> duration * totparts / currentpart
                             estDuration = msToTime(((endTime - startTime) * totPartitions) / currentPartition);
 
-                            estSingleDuration = msToTime((endTime - startTime) - (Date.now() - startTime));
+                            estSingleDuration = msToTime((Date.now() - startTime) - (endTime - startTime));
 
                             for (let i = 0; i < rightTimes.length; i++)
                                 sumRight += rightTimes[i];
