@@ -233,8 +233,6 @@
                             // currentpart : duration = totparts : totdur -> duration * totparts / currentpart
                             estDuration = msToTime(((endTime - startTime) * totPartitions) / (isItWhole ? currentPartition : (currentPartition - 1)));
 
-                            // estSingleDuration = msToTime((Date.now() - startTime) - (endTime - startTime));
-
                             for (let i = 0; i < rightTimes.length; i++)
                                 sumRight += rightTimes[i];
                             
@@ -270,12 +268,10 @@
                             if (isItWhole) {
                                 document.getElementById("pending").innerHTML = currentPartition + " interim " + (currentPartition == 1 ? "analysis" : "analyses") + " done, " + 
                                 (totPartitions - currentPartition) + " interim " + (currentPartition == (totPartitions-1) ? "analysis" : "analyses") + " pending (total subjects = " + popSize + " for power = " + expPower + "%)";
-                                // document.getElementById("duration").innerHTML = "Estimated time until the end of the testing session (based on the duration so far): " + estDuration;
                             }
                             else
                                 document.getElementById("pending").innerHTML = "The interim analysis number " + currentPartition + " is in progress. The data in this page is being updated in real time";
-                                // + " Estimated time until the end of the interim analysis in progress: " + estSingleDuration;
-                                
+
                             document.getElementById("duration").innerHTML = "Estimated time until the end of the testing session (based on the duration so far): " + estDuration;
 
                             setCookie("z" + currentPartition, zValue, 365);
