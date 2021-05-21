@@ -92,7 +92,7 @@
                 minutes = (minutes < 10) ? "0" + minutes : minutes;
                 seconds = (seconds < 10) ? "0" + seconds : seconds;
 
-                return "~" + hours + " hour, " + minutes + " minutes";
+                return "~" + hours + (hours == 1 ? " hour, ": " hours, ") + minutes + (minutes == 1 ? " minute": " minutes");
             }
 
             function getStandardDeviation (array) {
@@ -332,7 +332,7 @@
                 <h3 id="stats" style="line-height: 1.6"></h3>
                 <h3 id="pending" style="line-height: 1.6"></h3>
                 <h4 id="duration" style="line-height: 1.6"></h4>
-                <b><h3 id="judgement" style="line-height: 1.6"></h3></b>
+                <h3 id="judgement" style="line-height: 1.6"></h3>
                 <h4 style="line-height: 1.6">Currently testing a 1-tailed hypothesis</h4>
                 <br>
                 <canvas id="myChart" style="width:100%;max-width:700px"></canvas>
