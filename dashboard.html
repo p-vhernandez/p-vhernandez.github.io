@@ -191,10 +191,10 @@
                         snapshot.docChanges().forEach((change) => {
                             if (change.type === "added") {
                                 // console.log("New city: ", change.doc.data());
-                                if (doc.data().button_position == "right")
-                                    rightTimes.push(doc.data().time_to_join);
+                                if (change.doc.data().button_position == "right")
+                                    rightTimes.push(change.doc.data().time_to_join);
                                 else
-                                    leftTimes.push(doc.data().time_to_join);
+                                    leftTimes.push(change.doc.data().time_to_join);
                             }
                         // doc.data() is never undefined for query doc snapshots
                         // console.log(doc.id, " => ", doc.data());
