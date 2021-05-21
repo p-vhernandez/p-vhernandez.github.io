@@ -100,10 +100,12 @@
                     size2 = parameters.sampleSize2;
 
                 let numerator = (sm1 - sm2) - delta;
+                console.log(numerator);
 
                 let d1 = ((sd1**2)/size1);
                 let d2 = ((sd2**2)/size2);
                 let denominator = Math.sqrt(d1 + d2);
+                console.log(denominator);
 
                 return (numerator/denominator);
             }
@@ -204,6 +206,8 @@
                         sampleSize1: leftTimes.length,
                         sampleSize2: rightTimes.length
                     };
+
+                    console.log(package);
 
                     zValue = getTwoMeansZValue(package);
                     pValue = getPValue(zValue);
