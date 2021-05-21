@@ -156,28 +156,10 @@
             function start() {
                 let rightTimes = new Array(),
                     leftTimes = new Array(),
-                    joinList = 0,
+                    // joinList = 0,
                     startTime = 0,
                     estDuration = 0,
                     endTime = 0;
-
-                let popSize = 500,
-                    currentPartition = 0,
-                    totPartitions = 50, // CHANGE THESE VALUES TO THE FINAL ONES IN THE FINAL VERSION
-                    partitionSize = 10,
-                    expPower = 80,
-                    currentSampleSize = 0,
-                    sumRight = 0,
-                    sumLeft = 0,
-                    sampleMeanRight, 
-                    sampleMeanLeft,
-                    popMeanRight = 10000,
-                    popMeanLeft = 13000,
-                    popDelta = 0, // we're under the null hypothesis
-                    stdDevRight = 0,
-                    stdDevLeft = 0,
-                    zValue = 0,
-                    pValue = 0;
 
                 // for now I'll use the two sample z test
 
@@ -204,6 +186,24 @@
                         //}
                     });
 
+                    let popSize = 500,
+                        currentPartition = 0,
+                        totPartitions = 50, // CHANGE THESE VALUES TO THE FINAL ONES IN THE FINAL VERSION
+                        partitionSize = 10,
+                        expPower = 80,
+                        currentSampleSize = 0,
+                        sumRight = 0,
+                        sumLeft = 0,
+                        sampleMeanRight = 0, 
+                        sampleMeanLeft = 0,
+                        popMeanRight = 10000,
+                        popMeanLeft = 13000,
+                        popDelta = 0, // we're under the null hypothesis
+                        stdDevRight = 0,
+                        stdDevLeft = 0,
+                        zValue = 0,
+                        pValue = 0;
+
                     currentSampleSize = rightTimes.length + leftTimes.length;
                     currentPartition = totPartitions - ((popSize - currentSampleSize)/partitionSize);
 
@@ -227,8 +227,10 @@
 
                             // estSingleDuration = msToTime((Date.now() - startTime) - (endTime - startTime));
 
-                            for (let i = 0; i < rightTimes.length; i++)
+                            for (let i = 0; i < rightTimes.length; i++) {
                                 sumRight += rightTimes[i];
+                                console.log(sumRight)
+                            }
                             
                             sampleMeanRight = sumRight/rightTimes.length;
 
