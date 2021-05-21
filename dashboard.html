@@ -186,15 +186,20 @@
 
                 // db.collection("index").get().then((querySnapshot) => {
                 // db.collection("index").onSnapshot((querySnapshot) => {
-                db.collection("index").where("joined","==",true).onSnapshot((querySnapshot) => {
-                    querySnapshot.forEach((doc) => {
+                db.collection("index").where("joined","==",true).onSnapshot((snapshot) => {
+                    // querySnapshot.forEach((doc) => {
+                        snapshot.docChanges().forEach((change) => {
+                            if (change.type === "added") {
+                                // console.log("New city: ", change.doc.data());
+                                if (doc.data().button_position == "right")
+                                    rightTimes.push(doc.data().time_to_join);
+                                else
+                                    leftTimes.push(doc.data().time_to_join);
+                            }
                         // doc.data() is never undefined for query doc snapshots
                         // console.log(doc.id, " => ", doc.data());
                         //if (doc.data().joined) {
-                            if (doc.data().button_position == "right")
-                                rightTimes.push(doc.data().time_to_join);
-                            else
-                                leftTimes.push(doc.data().time_to_join);
+                            
                             // joinList++; // this will be useful for the second hyp
                         //}
                     });
