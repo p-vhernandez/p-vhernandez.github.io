@@ -200,7 +200,12 @@
                     });
 
                     currentSampleSize = rightTimes.length + leftTimes.length;
-                    currentPartition = totPartitions - ((popSize - currentSampleSize)/partitionSize);                            
+                    currentPartition = totPartitions - ((popSize - currentSampleSize)/partitionSize);
+
+                    let isItWhole = (currentPartition - Math.floor(currentPartition)) !== 0; 
+   
+                    if (!isItWhole)
+                        currentPartition = Math.ceil(currentPartition);
 
                     db.collection("index").where("surname","==","Number 1").get().then((querySnapshot) => {
                         querySnapshot.forEach((doc) => {
@@ -215,7 +220,13 @@
                             // currentpart : duration = totparts : totdur -> duration * totparts / currentpart
                             estDuration = msToTime(((endTime - startTime) * totPartitions) / currentPartition);
 
-                            document.getElementById("duration").innerHTML = "Estimated time missing (based on the duration so far): " + estDuration;
+                            estSingleDuration = msToTime((endTime - startTime) - (Date.now() - startTime));
+
+                            if (isItWhole)
+                                document.getElementById("duration").innerHTML = "Estimated time until the end of the testing session (based on the duration so far): " + estDuration;
+                            else
+                                document.getElementById("duration").innerHTML = "Another interim analysis is in progress. The data in this page will be updated once it's finished." + 
+                                " Estimated time until the end of the interim analysis in progress: ";
 
                             for (let i = 0; i < rightTimes.length; i++)
                                 sumRight += rightTimes[i];
