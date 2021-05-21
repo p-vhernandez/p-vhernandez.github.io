@@ -174,7 +174,7 @@
                 for (let i = 1; i < (popSize/totPartitions); i++) {
                     xValues.push(i.toString() + "/" + (popSize/totPartitions).toString());
                 }
-                xValues[xValues.length] = (popSize/totPartitions) + "/" (popSize/totPartitions) + " (1)";
+                xValues[xValues.length] = (popSize/totPartitions).toString() + "/" (popSize/totPartitions).toString() + " (1)";
 
                 // db.collection("index").get().then((querySnapshot) => {
                 // db.collection("index").onSnapshot((querySnapshot) => {
@@ -277,14 +277,12 @@
                             setCookie("z" + currentPartition, zValue, 365);
 
                             let resultZs = new Array();
-                            resultZs[currentPartition-1] = zValue;
+                            resultZs[currentPartition - 1] = zValue;
                             // WIP: get cookies; you know that there are N previous partitions because that's currentPartition-1, so you can more efficiently cycle through getting them
 
                             for (let i = 0; i < (currentPartition - 1); i++) {
                                 resultZs[i] = getCookie("z" + (i + 1));
                             }
-
-                            
 
                             let judgementSoFar = "NOT ";
 
