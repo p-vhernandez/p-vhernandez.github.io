@@ -159,13 +159,13 @@
                     // joinList = 0,
 
                 const   tails = 1, 
-                        popSize = 500,
-                        totPartitions = 50, // CHANGE THESE VALUES TO THE FINAL ONES IN THE FINAL VERSION
-                        partitionSize = 10,
+                        sampleSize = 500,
+                        partitionSize = 10, // Final: 25
+                        totPartitions = sampleSize/partitionSize,
                         expPower = 80,
                         pInterval = 0.05,
-                        popMeanRight = 10000,
-                        popMeanLeft = 13000,
+                        popMeanRight = 10000, // SD = 1000
+                        popMeanLeft = 13000, // SD = 1000
                         popDelta = 0, // we're under the null hypothesis
                         interimZs = [6.0879, 4.2288, 3.3962, 2.9061, 2.5789, 2.3417, 2.1598, 2.0146, 1.8952, 1.7949], // These values come from the R script
                         nInterimZs = [-6.0879, -4.2288, -3.3962, -2.9061, -2.5789, -2.3417, -2.1598, -2.0146, -1.8952, -1.7949], // These values come from the R script
@@ -173,10 +173,10 @@
 
                 let xValues = new Array();  // the partitions in the graph
 
-                for (let i = 1; i < (popSize/totPartitions); i++) {
-                    xValues.push(i.toString() + "/" + (popSize/totPartitions).toString());
+                for (let i = 1; i < (sampleSize/totPartitions); i++) {
+                    xValues.push(i.toString() + "/" + (sampleSize/totPartitions).toString());
                 }
-                xValues[xValues.length] = (popSize/totPartitions).toString() + "/" + (popSize/totPartitions).toString() + " (1)";
+                xValues[xValues.length] = (sampleSize/totPartitions).toString() + "/" + (sampleSize/totPartitions).toString() + " (1)";
 
                 // db.collection("index").get().then((querySnapshot) => {
                 // db.collection("index").onSnapshot((querySnapshot) => {
@@ -198,25 +198,12 @@
                         //}
                     });
 
-                    let startTime = 0,
-                        estDuration = 0,
-                        endTime = 0,
-                        currentSampleSize = 0,
-                        currentPartition = 0,
-                        sumRight = 0,
-                        sumLeft = 0,
-                        sampleMeanRight = 0, 
-                        sampleMeanLeft = 0,
-                        stdDevRight = 0,
-                        stdDevLeft = 0,
-                        zValue = 0,
-                        pValue = 0;
-
                     currentSampleSize = rightTimes.length + leftTimes.length;
-                    currentPartition = totPartitions - ((popSize - currentSampleSize)/partitionSize);
+
+                    currentPartition = totPartitions - ((sampleSize - currentSampleSize)/partitionSize);
 
                     let isItWhole = (currentPartition - Math.floor(currentPartition)) == 0;
-   
+
                     if (!isItWhole)
                         currentPartition = Math.ceil(currentPartition);
 
@@ -230,113 +217,130 @@
                                 endTime = (Date.parse(doc.data().visits[0]) + doc.data().time_to_join);
                             });
 
-                            // currentpart : duration = totparts : totdur -> duration * totparts / currentpart
                             estDuration = msToTime(((endTime - startTime) * totPartitions) / (isItWhole ? currentPartition : (currentPartition - 1)));
 
-                            for (let i = 0; i < rightTimes.length; i++)
-                                sumRight += rightTimes[i];
-                            
-                            sampleMeanRight = sumRight/rightTimes.length;
+                            if (sampleSize % currentSampleSize == 0 && currentSampleSize >= partitionSize) {
 
-                            for (let i = 0; i < leftTimes.length; i++)
-                                sumLeft += leftTimes[i];
+                                let startTime = 0,
+                                    estDuration = 0,
+                                    endTime = 0,
+                                    currentSampleSize = 0,
+                                    currentPartition = 0,
+                                    sumRight = 0,
+                                    sumLeft = 0,
+                                    sampleMeanRight = 0, 
+                                    sampleMeanLeft = 0,
+                                    stdDevRight = 0,
+                                    stdDevLeft = 0,
+                                    zValue = 0,
+                                    pValue = 0;
 
-                            sampleMeanLeft = sumLeft/leftTimes.length;
+                                // currentpart : duration = totparts : totdur -> duration * totparts / currentpart
 
-                            stdDevRight = getStandardDeviation(rightTimes);
-                            stdDevLeft = getStandardDeviation(leftTimes);
+                                for (let i = 0; i < rightTimes.length; i++)
+                                    sumRight += rightTimes[i];
+                                
+                                sampleMeanRight = sumRight/rightTimes.length;
 
-                            zValue = getTwoMeansZValue({
-                                sampleMean1: sampleMeanLeft,
-                                sampleMean2: sampleMeanRight,
-                                popDelta: popDelta,
-                                stdDev1: stdDevLeft,
-                                stdDev2: stdDevRight,
-                                sampleSize1: leftTimes.length,
-                                sampleSize2: rightTimes.length
-                            });
-                            pValue = getPValue(zValue);
+                                for (let i = 0; i < leftTimes.length; i++)
+                                    sumLeft += leftTimes[i];
 
-                            document.getElementById("stats").innerHTML = "Z = " + zValue.toFixed(4) + ", p-value = " + pValue.toFixed(4) + " (" + (pValue >= pInterval ? "non-" : "") + "significant)";
+                                sampleMeanLeft = sumLeft/leftTimes.length;
 
-                            if (currentPartition != -1)
-                                document.getElementById("latest").innerHTML = "Number of subjects that entered the experiment so far: " + currentSampleSize + 
-                                    " (" + rightTimes.length + " had the right button position and " + leftTimes.length + " had the left button position)";
-                            else
-                                document.getElementById("latest").innerHTML = "Error? Current sample size: " + currentSampleSize;
+                                stdDevRight = getStandardDeviation(rightTimes);
+                                stdDevLeft = getStandardDeviation(leftTimes);
 
-                            if (isItWhole) {
-                                if (currentPartition != totPartitions) {
-                                    document.getElementById("pending").innerHTML = currentPartition + " interim " + (currentPartition == 1 ? "analysis" : "analyses") + " done, " + 
-                                    (totPartitions - currentPartition) + " interim " + (currentPartition == (totPartitions-1) ? "analysis" : "analyses") + 
-                                    " pending (total subjects = " + popSize + " for power = " + expPower + "%)";
-                                    document.getElementById("duration").innerHTML = "Estimated time until the end of the testing session (based on the duration so far): " + estDuration;
+                                zValue = getTwoMeansZValue({
+                                    sampleMean1: sampleMeanLeft,
+                                    sampleMean2: sampleMeanRight,
+                                    popDelta: popDelta,
+                                    stdDev1: stdDevLeft,
+                                    stdDev2: stdDevRight,
+                                    sampleSize1: leftTimes.length,
+                                    sampleSize2: rightTimes.length
+                                });
+                                pValue = getPValue(zValue);
+
+                                document.getElementById("stats").innerHTML = "Z = " + zValue.toFixed(4) + ", p-value = " + pValue.toFixed(4) + " (" + (pValue >= pInterval ? "non-" : "") + "significant)";
+
+                                if (currentPartition != -1)
+                                    document.getElementById("latest").innerHTML = "Number of subjects that entered the experiment so far: " + currentSampleSize + 
+                                        " (" + rightTimes.length + " had the right button position and " + leftTimes.length + " had the left button position)";
+                                else
+                                    document.getElementById("latest").innerHTML = "Error? Current sample size: " + currentSampleSize;
+
+                                if (isItWhole) {
+                                    if (currentPartition != totPartitions) {
+                                        document.getElementById("pending").innerHTML = currentPartition + " interim " + (currentPartition == 1 ? "analysis" : "analyses") + " done, " + 
+                                        (totPartitions - currentPartition) + " interim " + (currentPartition == (totPartitions-1) ? "analysis" : "analyses") + 
+                                        " pending (total subjects = " + sampleSize + " for power = " + expPower + "%)";
+                                        document.getElementById("duration").innerHTML = "Estimated time until the end of the testing session (based on the duration so far): " + estDuration;
+                                    }
+                                    else {
+                                        document.getElementById("pending").innerHTML = "All " + totPartitions + " interim analyses were performed!";
+                                        document.getElementById("duration").innerHTML = "Total time elapsed: " + msToTime(endTime - startTime);
+                                    }
                                 }
-                                else {
-                                    document.getElementById("pending").innerHTML = "All " + totPartitions + " interim analyses were performed!";
-                                    document.getElementById("duration").innerHTML = "Total time elapsed: " + msToTime(endTime - startTime);
+
+                                setCookie("z" + currentPartition, zValue, 365);
+
+                                let resultZs = new Array();
+                                resultZs[currentPartition - 1] = zValue;
+
+                                for (let i = 0; i < (currentPartition - 1); i++)
+                                    resultZs[i] = getCookie("z" + (i + 1));
+
+                                let judgementSoFar = "NOT ";
+
+                                if (asymmetricalCurves) {
+                                    if (resultZs[resultZs.length - 1] >= 0) {
+                                        if (resultZs[resultZs.length -1] > interimZs[resultZs.length - 1])
+                                            judgementSoFar = "";
+                                    } else {
+                                        if (resultZs[resultZs.length -1] < nInterimZs[resultZs.length - 1])
+                                            judgementSoFar = "";
+                                    }
+                                } else {
+                                    if (Math.abs(resultZs[resultZs.length - 1]) > interimZs[resultZs.length - 1])
+                                        judgementSoFar = "";
                                 }
-                            }
-                            else {
+
+                                document.getElementById("judgement").innerHTML = "Judging by the data we got so far, we can say that the alternative hypothesis is " + judgementSoFar + "statistically significant" +
+                                    (judgementSoFar == "" ? ". If wanted so, this experiment could be stopped right now and a valid final decision could be made" : "");
+
+                                document.getElementById("loadandtail").innerHTML = "Currently testing a " + tails + "-tailed hypothesis";
+
+                                // Should I keep both grey lines in the chart? Or should I differentiate based on the last value being positive or negative and only keep the appropriate one?
+                                // ANSWER: I should keep and show both
+                                // the following plot also works with 2-tailed hypotheses
+                                new Chart("myChart", {
+                                    type: "line",
+                                    data: {
+                                        labels: xValues,
+                                        datasets: [{
+                                            data: interimZs,
+                                            borderColor: "lightgrey",
+                                            fill: false
+                                        },
+                                        {
+                                            data: nInterimZs,
+                                            borderColor: "lightgrey",
+                                            fill: false
+                                        },
+                                        {
+                                            data: resultZs,
+                                            borderColor: "purple",
+                                            fill: false
+                                        }]
+                                    },
+                                    options: {
+                                        legend: {display: false}
+                                    }
+                                });
+                            } else {
                                 document.getElementById("pending").innerHTML = "The interim analysis number " + currentPartition + " is in progress. The data in this page is being updated in real time";
                                 document.getElementById("duration").innerHTML = "Estimated time until the end of the testing session (based on the duration so far): " + estDuration;
                             }
-
-                            setCookie("z" + currentPartition, zValue, 365);
-
-                            let resultZs = new Array();
-                            resultZs[currentPartition - 1] = zValue;
-
-                            for (let i = 0; i < (currentPartition - 1); i++)
-                                resultZs[i] = getCookie("z" + (i + 1));
-
-                            let judgementSoFar = "NOT ";
-
-                            if (asymmetricalCurves) {
-                                if (resultZs[resultZs.length - 1] >= 0) {
-                                    if (resultZs[resultZs.length -1] > interimZs[resultZs.length - 1])
-                                        judgementSoFar = "";
-                                } else {
-                                    if (resultZs[resultZs.length -1] < nInterimZs[resultZs.length - 1])
-                                        judgementSoFar = "";
-                                }
-                            } else {
-                                if (Math.abs(resultZs[resultZs.length - 1]) > interimZs[resultZs.length - 1])
-                                    judgementSoFar = "";
-                            }
-
-                            document.getElementById("judgement").innerHTML = "Judging by the data we got so far, we can say that the alternative hypothesis is " + judgementSoFar + "statistically significant" +
-                                (judgementSoFar == "" ? ". If wanted so, this experiment could be stopped right now and a valid final decision could be made" : "");
-
-                            document.getElementById("loadandtail").innerHTML = "Currently testing a " + tails + "-tailed hypothesis";
-
-                            // Should I keep both grey lines in the chart? Or should I differentiate based on the last value being positive or negative and only keep the appropriate one?
-                            // ANSWER: I should keep and show both
-                            // the following plot also works with 2-tailed hypotheses
-                            new Chart("myChart", {
-                                type: "line",
-                                data: {
-                                    labels: xValues,
-                                    datasets: [{
-                                        data: interimZs,
-                                        borderColor: "lightgrey",
-                                        fill: false
-                                    },
-                                    {
-                                        data: nInterimZs,
-                                        borderColor: "lightgrey",
-                                        fill: false
-                                    },
-                                    {
-                                        data: resultZs,
-                                        borderColor: "purple",
-                                        fill: false
-                                    }]
-                                },
-                                options: {
-                                    legend: {display: false}
-                                }
-                            });
                         });
                     });
                 });
