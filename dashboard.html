@@ -257,7 +257,7 @@
                                 });
                                 pValue = getPValue(zValue);
 
-                                document.getElementById("stats").innerHTML = "Z = " + zValue.toFixed(4) + ", p-value = " + pValue.toFixed(4) + " (" + (pValue >= pInterval ? "non-" : "") + "significant)";
+                                document.getElementById("stats").innerHTML = "Previous interim analysis values: Z = " + zValue.toFixed(4) + ", p-value = " + pValue.toFixed(4) + " (" + (pValue >= pInterval ? "non-" : "") + "significant)";
 
                                 if (isItWhole) {
                                     if (currentPartition != totPartitions) {
@@ -328,7 +328,7 @@
                                 else
                                     document.getElementById("latest").innerHTML = "Error? Current sample size: " + currentSampleSize;
 
-                            document.getElementById("judgement").innerHTML = "Judging by the data we got so far, we can say that the alternative hypothesis is " + judgementSoFar + "statistically significant" +
+                            document.getElementById("judgement").innerHTML = "Judging by the last interim analysis, we can say that the alternative hypothesis is " + judgementSoFar + "statistically significant" +
                             (judgementSoFar == "" ? ". If wanted so, this experiment could be stopped right now and a valid final decision could be made" : "");
 
                             document.getElementById("loadandtail").innerHTML = "Currently testing a " + tails + "-tailed hypothesis";
