@@ -276,22 +276,6 @@
 
                                 resultZs[currentPartition - 1] = zValue;
 
-                                for (let i = 0; i < (currentPartition - 1); i++)
-                                    resultZs[i] = getCookie("z" + (i + 1));
-
-                                if (asymmetricalCurves) {
-                                    if (resultZs[resultZs.length - 1] >= 0) {
-                                        if (resultZs[resultZs.length -1] > interimZs[resultZs.length - 1])
-                                            judgementSoFar = "";
-                                    } else {
-                                        if (resultZs[resultZs.length -1] < nInterimZs[resultZs.length - 1])
-                                            judgementSoFar = "";
-                                    }
-                                } else {
-                                    if (Math.abs(resultZs[resultZs.length - 1]) > interimZs[resultZs.length - 1])
-                                        judgementSoFar = "";
-                                }
-
                                 new Chart("myChart", {
                                     type: "line",
                                     data: {
@@ -332,6 +316,22 @@
                             (judgementSoFar == "" ? ". If wanted so, this experiment could be stopped right now and a valid final decision could be made" : "");
 
                             document.getElementById("loadandtail").innerHTML = "Currently testing a " + tails + "-tailed hypothesis";
+
+                            for (let i = 0; i < (currentPartition - 1); i++)
+                                resultZs[i] = getCookie("z" + (i + 1));
+
+                            if (asymmetricalCurves) {
+                                if (resultZs[resultZs.length - 1] >= 0) {
+                                    if (resultZs[resultZs.length -1] > interimZs[resultZs.length - 1])
+                                        judgementSoFar = "";
+                                } else {
+                                    if (resultZs[resultZs.length -1] < nInterimZs[resultZs.length - 1])
+                                        judgementSoFar = "";
+                                }
+                            } else {
+                                if (Math.abs(resultZs[resultZs.length - 1]) > interimZs[resultZs.length - 1])
+                                    judgementSoFar = "";
+                            }
 
                             // Should I keep both grey lines in the chart? Or should I differentiate based on the last value being positive or negative and only keep the appropriate one?
                             // ANSWER: I should keep and show both
