@@ -314,11 +314,10 @@
                             for (let i = 0; i < (currentPartition - 1); i++)
                                 resultZs[i] = getCookie("z" + (i + 1));
 
-                            console.log(resultZs)
-
                             if (resultZs.length != 0) {
 
                                 zValue = parseInt(resultZs[resultZs.length - 1]);
+                                console.log(zValue)
                                 pValue = getPValue(zValue);
 
                                 document.getElementById("stats").innerHTML = "Last interim analysis values: Z = " + zValue.toFixed(4) + ", p-value = " + pValue.toFixed(4) + 
