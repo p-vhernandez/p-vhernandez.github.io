@@ -257,7 +257,7 @@
                                 });
                                 pValue = getPValue(zValue);
 
-                                document.getElementById("stats").innerHTML = "Previous interim analysis values: Z = " + zValue.toFixed(4) + ", p-value = " + pValue.toFixed(4) + " (" + (pValue >= pInterval ? "non-" : "") + "significant)";
+                                document.getElementById("stats").innerHTML = "Last interim analysis values: Z = " + zValue.toFixed(4) + ", p-value = " + pValue.toFixed(4) + " (" + (pValue >= pInterval ? "non-" : "") + "significant)";
 
                                 if (isItWhole) {
                                     if (currentPartition != totPartitions) {
