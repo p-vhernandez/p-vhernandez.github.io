@@ -307,19 +307,16 @@
                             }
 
                             if (currentPartition != -1)
-                                    document.getElementById("latest").innerHTML = "Number of subjects that entered the experiment so far: " + currentSampleSize + 
-                                        " (" + rightTimes.length + " had the right button position and " + leftTimes.length + " had the left button position)";
-                                else
-                                    document.getElementById("latest").innerHTML = "Error? Current sample size: " + currentSampleSize;
-
-                            document.getElementById("judgement").innerHTML = "Judging by the last interim analysis, we can say that the alternative hypothesis is " + judgementSoFar + "statistically significant" +
-                            (judgementSoFar == "" ? ". If wanted so, this experiment could be stopped right now and a valid final decision could be made" : "");
+                                document.getElementById("latest").innerHTML = "Number of subjects that entered the experiment so far: " + currentSampleSize + 
+                                    " (" + rightTimes.length + " had the right button position and " + leftTimes.length + " had the left button position)";
+                            else
+                                document.getElementById("latest").innerHTML = "Error? Current sample size: " + currentSampleSize;
 
                             document.getElementById("loadandtail").innerHTML = "Currently testing a " + tails + "-tailed hypothesis";
-
+                            
                             for (let i = 0; i < (currentPartition - 1); i++)
                                 resultZs[i] = getCookie("z" + (i + 1));
-
+                            
                             if (asymmetricalCurves) {
                                 if (resultZs[resultZs.length - 1] >= 0) {
                                     if (resultZs[resultZs.length -1] > interimZs[resultZs.length - 1])
@@ -332,11 +329,14 @@
                                 if (Math.abs(resultZs[resultZs.length - 1]) > interimZs[resultZs.length - 1])
                                     judgementSoFar = "";
                             }
-
+                            
+                            document.getElementById("judgement").innerHTML = "Judging by the last interim analysis, we can say that the alternative hypothesis is " + judgementSoFar + "statistically significant" +
+                                (judgementSoFar == "" ? ". If wanted so, this experiment could be stopped right now and a valid final decision could be made" : "");
+                                
                             // Should I keep both grey lines in the chart? Or should I differentiate based on the last value being positive or negative and only keep the appropriate one?
                             // ANSWER: I should keep and show both
                             // the following plot also works with 2-tailed hypotheses
-                            /*new Chart("myChart", {
+                            new Chart("myChart", {
                                 type: "line",
                                 data: {
                                     labels: xValues,
@@ -359,34 +359,9 @@
                                 options: {
                                     legend: {display: false}
                                 }
-                            });*/
+                            });
                         });
                     });
-                });
-
-                new Chart("myChart", {
-                    type: "line",
-                    data: {
-                        labels: xValues,
-                        datasets: [{
-                            data: interimZs,
-                            borderColor: "lightgrey",
-                            fill: false
-                        },
-                        {
-                            data: nInterimZs,
-                            borderColor: "lightgrey",
-                            fill: false
-                        },
-                        {
-                            data: resultZs,
-                            borderColor: "purple",
-                            fill: false
-                        }]
-                    },
-                    options: {
-                        legend: {display: false}
-                    }
                 });
             }
 
