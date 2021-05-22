@@ -292,6 +292,31 @@
                                         judgementSoFar = "";
                                 }
 
+                                new Chart("myChart", {
+                                    type: "line",
+                                    data: {
+                                        labels: xValues,
+                                        datasets: [{
+                                            data: interimZs,
+                                            borderColor: "lightgrey",
+                                            fill: false
+                                        },
+                                        {
+                                            data: nInterimZs,
+                                            borderColor: "lightgrey",
+                                            fill: false
+                                        },
+                                        {
+                                            data: resultZs,
+                                            borderColor: "purple",
+                                            fill: false
+                                        }]
+                                    },
+                                    options: {
+                                        legend: {display: false}
+                                    }
+                                });
+
                             } else {
                                 document.getElementById("pending").innerHTML = "The interim analysis number " + currentPartition + " is in progress. The data in this page is being updated in real time";
                                 document.getElementById("duration").innerHTML = "Estimated time until the end of the testing session (based on the duration so far): " + estDuration;
@@ -311,7 +336,7 @@
                             // Should I keep both grey lines in the chart? Or should I differentiate based on the last value being positive or negative and only keep the appropriate one?
                             // ANSWER: I should keep and show both
                             // the following plot also works with 2-tailed hypotheses
-                            new Chart("myChart", {
+                            /*new Chart("myChart", {
                                 type: "line",
                                 data: {
                                     labels: xValues,
@@ -334,9 +359,34 @@
                                 options: {
                                     legend: {display: false}
                                 }
-                            });
+                            });*/
                         });
                     });
+                });
+
+                new Chart("myChart", {
+                    type: "line",
+                    data: {
+                        labels: xValues,
+                        datasets: [{
+                            data: interimZs,
+                            borderColor: "lightgrey",
+                            fill: false
+                        },
+                        {
+                            data: nInterimZs,
+                            borderColor: "lightgrey",
+                            fill: false
+                        },
+                        {
+                            data: resultZs,
+                            borderColor: "purple",
+                            fill: false
+                        }]
+                    },
+                    options: {
+                        legend: {display: false}
+                    }
                 });
             }
 
