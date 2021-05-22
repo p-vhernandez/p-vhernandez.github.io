@@ -161,15 +161,15 @@
 
                 const   tails = 1, 
                         sampleSize = 500,
-                        partitionSize = 10, // Final: 25
+                        partitionSize = 25,
                         totPartitions = sampleSize/partitionSize,
                         expPower = 80,
                         pInterval = 0.05,
                         popMeanRight = 10000, // SD = 1000
                         popMeanLeft = 13000, // SD = 1000
                         popDelta = 0, // we're under the null hypothesis
-                        interimZs = [6.0879, 4.2288, 3.3962, 2.9061, 2.5789, 2.3417, 2.1598, 2.0146, 1.8952, 1.7949], // These values come from the R script
-                        nInterimZs = [-6.0879, -4.2288, -3.3962, -2.9061, -2.5789, -2.3417, -2.1598, -2.0146, -1.8952, -1.7949], // These values come from the R script
+                        interimZs = [8.0000, 8.0000, 4.9570, 4.2325, 3.7612, 3.4169, 3.1521, 2.9406, 2.7665, 2.6201, 2.4948, 2.3858, 2.2900, 2.2049, 2.1287, 2.0598, 1.9972, 1.9400, 1.8875, 1.8390], // These values come from the R script
+                        nInterimZs = [-8.0000, -8.0000, -4.9570, -4.2325, -3.7612, -3.4169, -3.1521, -2.9406, -2.7665, -2.6201, -2.4948, -2.3858, -2.2900, -2.2049, -2.1287, -2.0598, -1.9972, -1.9400, -1.8875, -1.8390],
                         asymmetricalCurves = false; 
 
                 let xValues = new Array();  // the partitions in the graph
