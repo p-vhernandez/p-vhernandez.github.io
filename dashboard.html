@@ -255,9 +255,6 @@
                                     sampleSize1: leftTimes.length,
                                     sampleSize2: rightTimes.length
                                 });
-                                pValue = getPValue(zValue);
-
-                                document.getElementById("stats").innerHTML = "Last interim analysis values: Z = " + zValue.toFixed(4) + ", p-value = " + pValue.toFixed(4) + " (" + (pValue >= pInterval ? "non-" : "") + "significant)";
 
                                 if (isItWhole) {
                                     if (currentPartition != totPartitions) {
@@ -316,50 +313,59 @@
                             
                             for (let i = 0; i < (currentPartition - 1); i++)
                                 resultZs[i] = getCookie("z" + (i + 1));
-                            
-                            if (asymmetricalCurves) {
-                                if (resultZs[resultZs.length - 1] >= 0) {
-                                    if (resultZs[resultZs.length -1] > interimZs[resultZs.length - 1])
-                                        judgementSoFar = "";
-                                } else {
-                                    if (resultZs[resultZs.length -1] < nInterimZs[resultZs.length - 1])
-                                        judgementSoFar = "";
-                                }
-                            } else {
-                                if (Math.abs(resultZs[resultZs.length - 1]) > interimZs[resultZs.length - 1])
-                                    judgementSoFar = "";
-                            }
-                            
-                            document.getElementById("judgement").innerHTML = "Judging by the last interim analysis, we can say that the alternative hypothesis is " + judgementSoFar + "statistically significant" +
-                                (judgementSoFar == "" ? ". If wanted so, this experiment could be stopped right now and a valid final decision could be made" : "");
 
-                            // Should I keep both grey lines in the chart? Or should I differentiate based on the last value being positive or negative and only keep the appropriate one?
-                            // ANSWER: I should keep and show both
-                            // the following plot also works with 2-tailed hypotheses
-                            new Chart("myChart", {
-                                type: "line",
-                                data: {
-                                    labels: xValues,
-                                    datasets: [{
-                                        data: interimZs,
-                                        borderColor: "lightgrey",
-                                        fill: false
-                                    },
-                                    {
-                                        data: nInterimZs,
-                                        borderColor: "lightgrey",
-                                        fill: false
-                                    },
-                                    {
-                                        data: resultZs,
-                                        borderColor: "purple",
-                                        fill: false
-                                    }]
-                                },
-                                options: {
-                                    legend: {display: false}
+                            if (resultZs.length != 0) {
+
+                                zValue = resultZs[resultZs.length - 1];
+                                pValue = getPValue(zValue);
+
+                                document.getElementById("stats").innerHTML = "Last interim analysis values: Z = " + zValue.toFixed(4) + ", p-value = " + pValue.toFixed(4) + 
+                                    " (" + (pValue >= pInterval ? "non-" : "") + "significant)";
+                                
+                                if (asymmetricalCurves) {
+                                    if (resultZs[resultZs.length - 1] >= 0) {
+                                        if (resultZs[resultZs.length -1] > interimZs[resultZs.length - 1])
+                                            judgementSoFar = "";
+                                    } else {
+                                        if (resultZs[resultZs.length -1] < nInterimZs[resultZs.length - 1])
+                                            judgementSoFar = "";
+                                    }
+                                } else {
+                                    if (Math.abs(resultZs[resultZs.length - 1]) > interimZs[resultZs.length - 1])
+                                        judgementSoFar = "";
                                 }
-                            });
+                                
+                                document.getElementById("judgement").innerHTML = "Judging by the last interim analysis, we can say that the alternative hypothesis is " + judgementSoFar + "statistically significant" +
+                                    (judgementSoFar == "" ? ". If wanted so, this experiment could be stopped right now and a valid final decision could be made" : "");
+
+                                // Should I keep both grey lines in the chart? Or should I differentiate based on the last value being positive or negative and only keep the appropriate one?
+                                // ANSWER: I should keep and show both
+                                // the following plot also works with 2-tailed hypotheses
+                                new Chart("myChart", {
+                                    type: "line",
+                                    data: {
+                                        labels: xValues,
+                                        datasets: [{
+                                            data: interimZs,
+                                            borderColor: "lightgrey",
+                                            fill: false
+                                        },
+                                        {
+                                            data: nInterimZs,
+                                            borderColor: "lightgrey",
+                                            fill: false
+                                        },
+                                        {
+                                            data: resultZs,
+                                            borderColor: "purple",
+                                            fill: false
+                                        }]
+                                    },
+                                    options: {
+                                        legend: {display: false}
+                                    }
+                                });
+                            }
                         });
                     });
                 });
@@ -376,7 +382,7 @@
         <div class="container">
             <div class="row">
                 <h3 id="latest" style="line-height: 1.6"></h3>
-                <h3 id="stats" style="line-height: 1.6"></h3>
+                <h3 id="stats" style="line-height: 1.6">The Z value and p value will be calculated as soon as the next interim analysis ends</h3>
                 <h3 id="pending" style="line-height: 1.6"></h3>
                 <h4 id="duration" style="line-height: 1.6"></h4>
                 <h3 id="judgement" style="line-height: 1.6"></h3>
