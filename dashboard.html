@@ -314,6 +314,8 @@
                             for (let i = 0; i < (currentPartition - 1); i++)
                                 resultZs[i] = getCookie("z" + (i + 1));
 
+                            console.log(typeof resultZs + " " + resultZs)
+
                             if (resultZs.length != 0) {
 
                                 zValue = parseFloat(resultZs[resultZs.length - 1]);
