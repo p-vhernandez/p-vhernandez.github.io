@@ -174,10 +174,10 @@
 
                 let xValues = new Array();  // the partitions in the graph
 
-                for (let i = 1; i < (sampleSize/totPartitions); i++) {
-                    xValues.push(i.toString() + "/" + (sampleSize/totPartitions).toString());
+                for (let i = 1; i < totPartitions; i++) {
+                    xValues.push(i.toString() + "/" + totPartitions.toString());
                 }
-                xValues[xValues.length] = (sampleSize/totPartitions).toString() + "/" + (sampleSize/totPartitions).toString() + " (1)";
+                xValues[xValues.length] = totPartitions.toString() + "/" + totPartitions.toString() + " (1)";
 
                 // db.collection("index").get().then((querySnapshot) => {
                 // db.collection("index").onSnapshot((querySnapshot) => {
