@@ -130,10 +130,8 @@
                 // if z is greater than 6.5 standard deviations from the mean
                 // the number of significant digits will be outside of a reasonable 
                 // range
-                if (z < -6.5)
+                if (z < -6.5 || z > 6.5)
                     return 0.0;
-                if (z > 6.5) 
-                    return 1.0;
 
                 let factK = 1;
                 let sum = 0;
